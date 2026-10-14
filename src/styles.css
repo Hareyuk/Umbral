@@ -1,0 +1,205 @@
+/* Fuente de Tailwind. Se compila a assets/css/styles.css con `npm run build:css`. */
+@import "tailwindcss";
+
+@source "../index.html";
+@source "../app/index.html";
+@source "../assets/js";
+
+/* tokens:light */
+:root {
+  --bg: #FFFFFF;
+  --surface: #F4F7FC;
+  --surface-2: #E8EEFA;
+  --text: #0B1B33;
+  --text-muted: #44536E;
+  --primary: #1352D6;
+  --primary-strong: #0B3BA8;
+  --on-primary: #FFFFFF;
+  --sun: #FFC93C;
+  --on-sun: #0B1B33;
+  --orange: #F26B1D;
+  --orange-text: #B4440A;
+  --navy: #0A1A3A;
+  --on-navy: #F3F6FC;
+  --ok: #156B45;
+  --ok-bg: #E1F4EA;
+  --pre: #7A4A00;
+  --pre-bg: #FFF1CC;
+  --alert: #A8261A;
+  --alert-bg: #FDE6E1;
+  --border: #D7DFEE;
+  --border-strong: #64708A;
+  --focus: #F26B1D;
+}
+
+/* tokens:dark */
+:root[data-theme="dark"] {
+  --bg: #07122A;
+  --surface: #0E1F44;
+  --surface-2: #152B5A;
+  --text: #F3F6FC;
+  --text-muted: #AFC0DD;
+  --primary: #8DB2FF;
+  --primary-strong: #B5CDFF;
+  --on-primary: #07122A;
+  --sun: #FFD25A;
+  --on-sun: #0B1B33;
+  --orange: #FF9A4D;
+  --orange-text: #FFB27A;
+  --navy: #030A1C;
+  --on-navy: #F3F6FC;
+  --ok: #86DFAE;
+  --ok-bg: #123A2A;
+  --pre: #FFD27A;
+  --pre-bg: #3D2E0A;
+  --alert: #FFA092;
+  --alert-bg: #47201A;
+  --border: #23396A;
+  --border-strong: #8193B5;
+  --focus: #FF9A4D;
+}
+
+@theme inline {
+  --font-sans: "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--text);
+  --color-muted: var(--text-muted);
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-on-primary: var(--on-primary);
+  --color-sun: var(--sun);
+  --color-on-sun: var(--on-sun);
+  --color-orange: var(--orange);
+  --color-orange-text: var(--orange-text);
+  --color-navy: var(--navy);
+  --color-on-navy: var(--on-navy);
+  --color-ok: var(--ok);
+  --color-ok-bg: var(--ok-bg);
+  --color-pre: var(--pre);
+  --color-pre-bg: var(--pre-bg);
+  --color-alert: var(--alert);
+  --color-alert-bg: var(--alert-bg);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+}
+
+@layer base {
+  html {
+    font-size: calc(100% * var(--text-scale, 1));
+    scroll-behavior: smooth;
+    scroll-padding-top: 4rem;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  dialog::backdrop {
+    background: rgb(4 10 28 / 0.6);
+  }
+  input[type="range"] {
+    accent-color: var(--primary);
+  }
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--primary);
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-base font-bold transition;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-base font-bold transition bg-primary text-on-primary hover:bg-primary-strong;
+  }
+  .btn-sun {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-base font-bold transition bg-sun text-on-sun hover:brightness-95;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-base font-bold transition border-2 border-line-strong text-ink hover:bg-surface;
+  }
+  .link-more {
+    @apply font-bold text-primary underline-offset-4 hover:underline;
+  }
+  .eyebrow {
+    @apply text-sm font-bold uppercase tracking-widest text-orange-text;
+  }
+  .chip {
+    @apply rounded-full border-2 border-line-strong px-4 py-2 text-sm font-bold text-ink transition hover:bg-surface;
+  }
+  .chip[aria-pressed="true"] {
+    @apply border-primary bg-primary text-on-primary;
+  }
+  .card {
+    @apply rounded-3xl bg-surface p-6;
+  }
+  .watch svg {
+    @apply h-auto w-full;
+  }
+  .hero-glow {
+    background:
+      radial-gradient(40% 45% at 30% 40%, color-mix(in srgb, var(--sun) 70%, transparent), transparent 70%),
+      radial-gradient(45% 50% at 70% 55%, color-mix(in srgb, var(--primary) 45%, transparent), transparent 70%),
+      radial-gradient(30% 35% at 55% 20%, color-mix(in srgb, var(--orange) 45%, transparent), transparent 70%);
+    filter: blur(28px);
+  }
+  .float {
+    animation: float 6s ease-in-out infinite;
+  }
+  .sr-only-focusable:not(:focus) {
+    @apply sr-only;
+  }
+  .breath-circle {
+    animation: breathe 8s ease-in-out infinite;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(0.6); }
+  50% { transform: scale(1); }
+}
+
+/* Modo calma: sin movimiento y colores apagados, para quien lo necesite. */
+:root[data-calm="on"] {
+  --sun: #E9DDB8;
+  --orange: #C9A68E;
+  --orange-text: #6B4A35;
+}
+:root[data-calm="on"][data-theme="dark"] {
+  --sun: #8C8160;
+  --orange: #9C8170;
+  --orange-text: #D8C3B3;
+}
+:root[data-calm="on"] .hero-glow {
+  opacity: 0.35;
+}
+:root[data-calm="on"] *,
+:root[data-calm="on"] *::before,
+:root[data-calm="on"] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
