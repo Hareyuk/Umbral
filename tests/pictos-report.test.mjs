@@ -34,7 +34,7 @@ test('reloj: grilla de pictogramas marca el acceso directo', () => {
   const svg = watchSVG({ face: defaultFace(), pictos: { items: ['pausa', 'ayuda', 'si', 'no'], shortcut: 'ayuda' } });
   assert.match(svg, /aria-label="Reloj Umbral\. Mis pictogramas: Necesito una pausa, Necesito ayuda, Sí, No\."/);
   assert.equal((svg.match(/width="84" height="84"/g) ?? []).length, 4);
-  assert.equal((svg.match(/stroke="#FFD23F" stroke-width="3"\/>/g) ?? []).length, 1);
+  assert.equal((svg.match(/stroke="#49DE96" stroke-width="3"\/>/g) ?? []).length, 1);
 });
 
 test('reloj: grilla de 5 pictogramas (3 arriba, 2 abajo) sin salirse de la pantalla', () => {

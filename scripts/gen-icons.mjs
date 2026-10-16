@@ -38,10 +38,10 @@ export function encodePNG(w, h, rgba) {
   ]);
 }
 
-const BLUE = [19, 82, 214];
-const NAVY = [10, 42, 107];
-const SUN = [255, 201, 60];
-const ORANGE = [242, 107, 29];
+const BLUE = [61, 127, 192];
+const NAVY = [28, 54, 90];
+const SUN = [73, 222, 150];
+const ORANGE = [14, 145, 123];
 
 function inRoundedSquare(u, v, radius) {
   const dx = Math.max(radius - u, 0, u - (1 - radius));

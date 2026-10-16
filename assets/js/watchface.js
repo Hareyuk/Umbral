@@ -18,9 +18,9 @@ export function iconSVG(name, cls = 'size-6') {
 }
 
 export const FACE_STYLES = {
-  vivo: { label: 'Vivo', face: '#0A2A6B', text: '#FFFFFF', muted: '#B9CCF5', track: '#1B3F8F', tick: '#FFD23F', ok: '#7CF0B4', pre: '#FFD23F', alert: '#FF9A5C', tile: '#123A86' },
+  vivo: { label: 'Vivo', face: '#193A80', text: '#FFFFFF', muted: '#B9CCF5', track: '#1C365A', tick: '#49DE96', ok: '#49DE96', pre: '#FFD23F', alert: '#FF9A5C', tile: '#1C365A' },
   oscuro: { label: 'Oscuro', face: '#0B0F10', text: '#F4F7F6', muted: '#9FB0AE', track: '#263235', tick: '#FFFFFF', ok: '#6EE7A8', pre: '#FFC857', alert: '#FF8A7A', tile: '#1A2224' },
-  contraste: { label: 'Alto contraste', face: '#000000', text: '#FFFFFF', muted: '#FFFFFF', track: '#3A3A3A', tick: '#FFD60A', ok: '#5CFF9D', pre: '#FFD60A', alert: '#FF6B6B', tile: '#1F1F1F' },
+  contraste: { label: 'Alto contraste', face: '#000000', text: '#FFFFFF', muted: '#FFFFFF', track: '#3A3A3A', tick: '#49DE96', ok: '#5CFF9D', pre: '#FFD60A', alert: '#FF6B6B', tile: '#1F1F1F' },
   suave: { label: 'Suave', face: '#16302E', text: '#EAF4F1', muted: '#A8C3BE', track: '#24413E', tick: '#EAF4F1', ok: '#9AD9C0', pre: '#F1D38A', alert: '#F2A69A', tile: '#1F3E3B' },
 };
 
