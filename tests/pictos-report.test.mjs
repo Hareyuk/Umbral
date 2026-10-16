@@ -1,22 +1,24 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { PICTOS, PICTO_IDS, MAX_WATCH_PICTOS, normalizePictos, defaultPictos } from '../assets/js/pictos.js';
-import { watchSVG, defaultFace, FACE_STYLES } from '../assets/js/watchface.js';
+import { watchSVG, defaultFace, FACE_STYLES, pictoCells } from '../assets/js/watchface.js';
 import { buildWeeklyReportPDF, reportLines } from '../assets/js/report.js';
 
 test('pictogramas: cada uno tiene texto en primera persona, etiqueta corta y dibujo', () => {
   for (const id of PICTO_IDS) {
     const p = PICTOS[id];
     assert.ok(p.label && p.short && p.paths.length, id);
-    assert.ok(p.short.length <= 12, `${id}: etiqueta corta muy larga para la grilla`);
+    // Celda angosta: 56 px y letra de 9 px (aprox. 5,3 px por carácter en negrita).
+    assert.ok(p.short.length * 5.3 <= 50, `${id}: "${p.short}" no entra en la celda angosta`);
   }
 });
 
-test('pictogramas: máximo 4 en el reloj, sin repetir ni inventar', () => {
-  const p = normalizePictos({ items: ['si', 'si', 'no', 'luna', 'agua', 'casa', 'bano'], shortcut: 'bano' });
-  assert.deepEqual(p.items, ['si', 'no', 'agua', 'casa']);
-  assert.equal(p.items.length, MAX_WATCH_PICTOS);
+test('pictogramas: máximo 5 en el reloj, sin repetir ni inventar', () => {
+  assert.equal(MAX_WATCH_PICTOS, 5);
+  const p = normalizePictos({ items: ['si', 'si', 'no', 'luna', 'agua', 'casa', 'bano', 'comer'], shortcut: 'comer' });
+  assert.deepEqual(p.items, ['si', 'no', 'agua', 'casa', 'bano']);
   assert.equal(p.shortcut, 'si', 'el acceso directo tiene que estar entre los elegidos');
+  assert.equal(normalizePictos({ items: ['si', 'no'], shortcut: 'no' }).shortcut, 'no');
   assert.deepEqual(normalizePictos(null), defaultPictos());
   assert.deepEqual(normalizePictos({ items: [] }), { items: [], shortcut: null });
 });
@@ -33,6 +35,23 @@ test('reloj: grilla de pictogramas marca el acceso directo', () => {
   assert.match(svg, /aria-label="Reloj Umbral\. Mis pictogramas: Necesito una pausa, Necesito ayuda, Sí, No\."/);
   assert.equal((svg.match(/width="84" height="84"/g) ?? []).length, 4);
   assert.equal((svg.match(/stroke="#FFD23F" stroke-width="3"\/>/g) ?? []).length, 1);
+});
+
+test('reloj: grilla de 5 pictogramas (3 arriba, 2 abajo) sin salirse de la pantalla', () => {
+  const svg = watchSVG({ face: defaultFace(), pictos: { items: ['pausa', 'ayuda', 'si', 'no', 'auriculares'], shortcut: 'no' } });
+  assert.equal((svg.match(/width="56" height="84"/g) ?? []).length, 3);
+  assert.equal((svg.match(/width="87" height="84"/g) ?? []).length, 2);
+  for (const [x, y, w] of pictoCells(5)) {
+    assert.ok(x >= 24 && x + w <= 216 && y >= 24 && y + 84 <= 216, `celda ${x},${y}`);
+  }
+  const cells = pictoCells(5);
+  for (let i = 0; i < cells.length; i++) {
+    for (let j = i + 1; j < cells.length; j++) {
+      const [a, b] = [cells[i], cells[j]];
+      const overlap = a[0] < b[0] + b[2] && b[0] < a[0] + a[2] && a[1] < b[1] + 84 && b[1] < a[1] + 84;
+      assert.ok(!overlap, `celdas ${i} y ${j} se pisan`);
+    }
+  }
 });
 
 test('reloj: pictograma en grande para mostrar', () => {

@@ -145,7 +145,14 @@ function alertScreen({ alert, readings, st }) {
   return body;
 }
 
-// Pantalla de pictogramas: grilla de hasta 4, o uno solo en grande para mostrarlo a otra persona.
+// Celdas de la grilla según cuántos pictogramas hay: [x, y, ancho] (alto fijo de 84).
+// Hasta 4 van en 2x2; con 5, tres angostas arriba y dos anchas abajo.
+export function pictoCells(n) {
+  if (n <= 4) return [[32, 32, 84], [124, 32, 84], [32, 124, 84], [124, 124, 84]].slice(0, n);
+  return [[30, 32, 56], [92, 32, 56], [154, 32, 56], [30, 124, 87], [123, 124, 87]];
+}
+
+// Pantalla de pictogramas: grilla de hasta 5, o uno solo en grande para mostrarlo a otra persona.
 function pictosScreen({ pictos, st }) {
   let body = '';
   if (pictos.show && PICTOS[pictos.show]) {
@@ -155,14 +162,15 @@ function pictosScreen({ pictos, st }) {
     });
     return body;
   }
-  const items = (pictos.items ?? []).filter((id) => PICTOS[id]).slice(0, 4);
-  const cells = [[32, 32], [124, 32], [32, 124], [124, 124]];
+  const items = (pictos.items ?? []).filter((id) => PICTOS[id]).slice(0, 5);
+  const cells = pictoCells(items.length);
   items.forEach((id, i) => {
-    const [x, y] = cells[i];
+    const [x, y, w] = cells[i];
+    const narrow = w < 84;
     const star = pictos.shortcut === id;
-    body += `<rect x="${x}" y="${y}" width="84" height="84" rx="18" fill="${st.tile}" stroke="${star ? st.tick : 'none'}" stroke-width="3"/>`;
-    body += glyph(id, x + 42, y + 34, 36, st.text, 2);
-    body += text(x + 42, y + 72, 10, st.muted, PICTOS[id].short, 'font-weight="700"');
+    body += `<rect x="${x}" y="${y}" width="${w}" height="84" rx="${narrow ? 14 : 18}" fill="${st.tile}" stroke="${star ? st.tick : 'none'}" stroke-width="3"/>`;
+    body += glyph(id, x + w / 2, y + 34, narrow ? 30 : 36, st.text, 2);
+    body += text(x + w / 2, y + 72, narrow ? 9 : 10, st.muted, PICTOS[id].short, 'font-weight="700"');
   });
   if (!items.length) body += text(CX, 124, 14, st.muted, 'Elegí pictogramas');
   return body;

@@ -120,7 +120,13 @@ test('landing: refleja la segunda ronda de feedback', () => {
   assert.match(html, /cobertura total o descuento|total o parcialmente/);
   assert.match(html, /estudio_discapacidad_12_18\.pdf">INDEC, 2018</);
   assert.match(html, /La decisión es siempre del usuario\./);
-  assert.match(html, /Lo vamos a validar/);
+  // Tercera ronda (16/10): títulos claros, sin promesas que generen dudas.
+  assert.ok(!/Nada sobre nosotros|Co-diseño|historias sociales/.test(visible(html)));
+  assert.match(html, /Cómo pensamos Umbral/);
+  assert.match(html, /El dispositivo está diseñado con/);
+  assert.ok(!/>Personas con autismo<\/h3>/.test(html), 'la tarjeta naranja no repite el título');
+  assert.match(html, /hasta 5 pictogramas/);
+  assert.match(app, /Elegí hasta 5/);
   assert.match(html, /reloj-umbral-sensores\.webp/);
   for (const sensor of ['Micrófono digital', 'Sensor de luz ambiental', 'Sensor óptico de pulso y oxígeno', 'Sensor de estrés', 'Acelerómetro y giroscopio', 'Parlante']) {
     assert.ok(html.includes(sensor), sensor);
