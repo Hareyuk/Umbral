@@ -1,6 +1,6 @@
 // Service worker de Umbral: la app funciona sin conexión.
 // Cambiá VERSION al publicar cambios grandes para forzar la actualización de la caché.
-const VERSION = 'umbral-v1';
+const VERSION = 'umbral-v2';
 const PRECACHE = [
   '/',
   '/index.html',

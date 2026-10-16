@@ -2,6 +2,13 @@
 import { METRICS, METRIC_IDS } from './engine.js';
 
 export const HISTORY_CAP = 200;
+export const FREE_HISTORY_DAYS = 7; // plan Básico; Plus ve todo el historial
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// Eventos visibles según el plan: con Básico, solo los de los últimos `days` días.
+export function visibleEvents(events, { plus = false, now = Date.now(), days = FREE_HISTORY_DAYS } = {}) {
+  return plus ? events : events.filter((ev) => now - ev.at < days * DAY_MS);
+}
 
 export function addEvent(list, ev, cap = HISTORY_CAP) {
   return [ev, ...list].slice(0, cap);

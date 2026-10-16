@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="es-AR">
+<html lang="es-AR" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Umbral · App</title>
   <meta name="description" content="Demo de la app Umbral: avisos sensoriales personalizables para tu smartwatch.">
-  <meta name="theme-color" content="#1352D6">
+  <meta name="theme-color" content="#07122A">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Umbral">
   <link rel="manifest" href="/manifest.webmanifest">
@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
   <link rel="stylesheet" href="/assets/css/styles.css">
-  <script>(function(){try{var p=JSON.parse(localStorage.getItem('umbral:prefs')||'{}');var r=document.documentElement;r.dataset.theme=p.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');r.dataset.calm=p.calm?'on':'off';if(p.scale)r.style.setProperty('--text-scale',p.scale);}catch(e){}})();</script>
+  <script>(function(){try{var p=JSON.parse(localStorage.getItem('umbral:prefs')||'{}');if(p.scale)document.documentElement.style.setProperty('--text-scale',p.scale);}catch(e){}})();</script>
   <script type="module" src="/assets/js/app.js"></script>
 </head>
 <body class="min-h-screen pb-28">
@@ -29,10 +29,7 @@
       <h1 class="text-lg font-bold">Umbral</h1>
       <p id="status-pill" class="ml-1 truncate whitespace-nowrap rounded-full bg-ok-bg px-3 py-1 text-xs font-bold text-ok sm:text-sm" data-level="ok">Tranquilo</p>
       <div class="ml-auto flex items-center gap-1">
-        <button type="button" class="rounded-full px-3 py-2 text-sm font-bold hover:bg-surface" data-pref="calm" aria-pressed="false">Calma</button>
-        <button type="button" class="rounded-full p-2 hover:bg-surface" data-pref="theme" aria-pressed="false" aria-label="Tema oscuro">
-          <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>
-        </button>
+        <button type="button" class="rounded-full p-2 text-sm font-bold hover:bg-surface" data-pref="smaller" aria-label="Achicar texto">A−</button>
         <button type="button" class="rounded-full p-2 text-sm font-bold hover:bg-surface" data-pref="bigger" aria-label="Agrandar texto">A+</button>
       </div>
     </div>
@@ -179,6 +176,7 @@
     <section id="panel-historial" role="tabpanel" aria-labelledby="tab-historial" hidden>
       <h2 class="text-3xl font-bold">Historial</h2>
       <p class="mt-2 text-muted">Qué te avisó Umbral y dónde. Sirve para anticiparte y para compartir con tu terapeuta.</p>
+      <p class="mt-3 rounded-2xl bg-surface p-4 text-sm text-muted">Plan gratis: últimos 7 días. Con Umbral Plus ves el historial completo.</p>
       <div id="history-summary" class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4"></div>
       <div class="mt-6 flex flex-wrap gap-3">
         <button type="button" id="csv-download" class="btn-primary">Descargar CSV</button>

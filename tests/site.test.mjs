@@ -77,6 +77,28 @@ test('landing: las cifras del modelo de negocio coinciden con model.js', () => {
   for (const [k, v] of Object.entries(expected)) assert.equal(shown[k], v, k);
 });
 
+// Feedback de Federico en FigJam (15/10/2026), aprobado por el equipo.
+test('landing: refleja el feedback del equipo', () => {
+  const html = read('index.html');
+  const app = read('app/index.html');
+  const text = (h) => h.replace(/<svg[\s\S]*?<\/svg>/g, '');
+  for (const page of [text(html), text(app)]) {
+    assert.ok(!/autista/i.test(page), 'usar "personas con autismo"');
+    assert.ok(!/Modo calma|data-pref="(calm|theme)"/.test(page), 'sin modo calma ni selector de tema');
+    assert.ok(!/Galaxy|Wear OS|relojes que ya/.test(page), 'el reloj es propio');
+    assert.match(page, /data-theme="dark"/);
+  }
+  assert.match(html, /<a class="hover:text-ink" href="#problema">Por qué<\/a>/, '"Por qué" queda en la barra');
+  assert.ok(!html.includes('href="#modelo"'), 'sin "Modelo" en la barra');
+  assert.match(html, /href="#suscripciones"[^>]*>Suscripciones</);
+  assert.match(html, /data-open-account/);
+  assert.match(html, /id="suscripciones"/);
+  assert.ok(!/<table/.test(html), 'la tabla de ingresos queda para el pitch');
+  assert.ok(!/TDAH|hipoacúsicas|Discapacidad intelectual/.test(html), 'solo la tarjeta de autismo');
+  assert.match(html, /7 días/);
+  assert.match(html, /obra social/);
+});
+
 test('landing: las esferas pre-renderizadas están al día (npm run build:faces)', () => {
   const html = read('index.html');
   assert.equal(renderInto(html), html);

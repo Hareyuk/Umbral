@@ -175,27 +175,7 @@
   50% { transform: scale(1); }
 }
 
-/* Modo calma: sin movimiento y colores apagados, para quien lo necesite. */
-:root[data-calm="on"] {
-  --sun: #E9DDB8;
-  --orange: #C9A68E;
-  --orange-text: #6B4A35;
-}
-:root[data-calm="on"][data-theme="dark"] {
-  --sun: #8C8160;
-  --orange: #9C8170;
-  --orange-text: #D8C3B3;
-}
-:root[data-calm="on"] .hero-glow {
-  opacity: 0.35;
-}
-:root[data-calm="on"] *,
-:root[data-calm="on"] *::before,
-:root[data-calm="on"] *::after {
-  animation: none !important;
-  transition: none !important;
-  scroll-behavior: auto !important;
-}
+/* Respeta la preferencia del sistema de reducir movimiento. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation: none !important;

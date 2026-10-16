@@ -1,14 +1,14 @@
 {
   "name": "Umbral: tu reloj sensorial",
   "short_name": "Umbral",
-  "description": "Avisos sensoriales en tu muñeca para personas autistas y neurodivergentes.",
+  "description": "Avisos sensoriales en tu muñeca para personas con autismo.",
   "lang": "es-AR",
   "start_url": "/app/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#FFFFFF",
-  "theme_color": "#1352D6",
+  "background_color": "#07122A",
+  "theme_color": "#07122A",
   "categories": ["health", "lifestyle"],
   "icons": [
     { "src": "/assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },

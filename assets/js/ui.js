@@ -1,13 +1,13 @@
-// Preferencias visuales (tema, modo calma, tamaño de texto) e instalación de la PWA.
-// Compartido por la landing y la app. El tema inicial lo aplica un script inline en <head> para evitar parpadeo.
+// Tamaño de texto, perfil e instalación de la PWA. Compartido por la landing y la app.
+// La escala inicial la aplica un script inline en <head> para evitar parpadeo.
 const KEY = 'umbral:prefs';
 const root = document.documentElement;
 
 function load() {
   try {
-    return { theme: null, calm: false, scale: 1, ...JSON.parse(localStorage.getItem(KEY) || '{}') };
+    return { scale: 1, ...JSON.parse(localStorage.getItem(KEY) || '{}') };
   } catch {
-    return { theme: null, calm: false, scale: 1 };
+    return { scale: 1 };
   }
 }
 
@@ -19,30 +19,25 @@ function save(p) {
   }
 }
 
-function apply(p) {
-  root.dataset.calm = p.calm ? 'on' : 'off';
-  root.style.setProperty('--text-scale', p.scale);
-  document.querySelectorAll('[data-pref="calm"]').forEach((b) => b.setAttribute('aria-pressed', String(p.calm)));
-  document.querySelectorAll('[data-pref="theme"]').forEach((b) => b.setAttribute('aria-pressed', String(root.dataset.theme === 'dark')));
-}
-
 export function initUI() {
   const prefs = load();
-  apply(prefs);
-  document.addEventListener('click', async (e) => {
-    const btn = e.target.closest('[data-pref], [data-install]');
+  root.style.setProperty('--text-scale', prefs.scale);
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-pref], [data-install], [data-open-account]');
     if (!btn) return;
     if (btn.dataset.install !== undefined) return install();
-    const pref = btn.dataset.pref;
-    if (pref === 'calm') prefs.calm = !prefs.calm;
-    if (pref === 'theme') {
-      prefs.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
-      root.dataset.theme = prefs.theme;
-    }
-    if (pref === 'bigger') prefs.scale = Math.min(1.4, Math.round((prefs.scale + 0.1) * 10) / 10);
-    if (pref === 'smaller') prefs.scale = Math.max(0.9, Math.round((prefs.scale - 0.1) * 10) / 10);
+    if (btn.dataset.openAccount !== undefined) return document.getElementById('account')?.showModal();
+    const step = { bigger: 0.1, smaller: -0.1 }[btn.dataset.pref] ?? 0;
+    prefs.scale = Math.min(1.4, Math.max(0.9, Math.round((prefs.scale + step) * 10) / 10));
+    root.style.setProperty('--text-scale', prefs.scale);
     save(prefs);
-    apply(prefs);
+  });
+
+  // Perfil (demo): no guarda ni envía datos; al registrarse lleva a los planes.
+  const account = document.getElementById('account');
+  account?.addEventListener('close', () => {
+    if (account.returnValue === 'planes') document.getElementById('suscripciones')?.scrollIntoView();
+    account.querySelector('form')?.reset();
   });
 
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {

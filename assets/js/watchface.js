@@ -77,6 +77,20 @@ function text(x, y, size, fill, content, extra = '') {
   return `<text x="${x}" y="${y}" font-size="${size}" fill="${fill}" text-anchor="middle" font-family="${FONT}" ${extra}>${content}</text>`;
 }
 
+// Correa sensorial: relieves que se pueden recorrer con los dedos para autorregularse.
+// Nervaduras horizontales con un punto en relieve en el centro de cada una.
+export function strapTexture() {
+  const ridges = [];
+  const rows = (from, to) => {
+    for (let y = from; y <= to; y += 10) {
+      ridges.push(`<rect x="86" y="${y}" width="68" height="4" rx="2" fill="#3F4C50"/>`, `<circle cx="120" cy="${y + 2}" r="2.6" fill="#56656A"/>`);
+    }
+  };
+  rows(-54, 30);
+  rows(204, 290);
+  return `<g aria-hidden="true">${ridges.join('')}</g>`;
+}
+
 function describe({ readings, levels, face, thresholds, alert }) {
   if (alert) return `Reloj Umbral. Aviso: ${alert.title}.`;
   const parts = [face.primary, ...face.complications].map((id) => {
@@ -138,6 +152,7 @@ export function watchSVG({ readings = {}, levels = {}, face: rawFace, thresholds
   return `<svg viewBox="0 -64 240 368" role="img" aria-label="${label}" xmlns="http://www.w3.org/2000/svg">
 <rect x="74" y="-64" width="92" height="110" rx="20" fill="#2C3537"/>
 <rect x="74" y="194" width="92" height="110" rx="20" fill="#2C3537"/>
+${strapTexture()}
 <rect x="229" y="86" width="7" height="20" rx="3" fill="#5A666B"/>
 <rect x="229" y="132" width="7" height="20" rx="3" fill="#5A666B"/>
 <circle cx="${CX}" cy="${CY}" r="113" fill="#1E2426" stroke="#5A666B" stroke-width="3"/>

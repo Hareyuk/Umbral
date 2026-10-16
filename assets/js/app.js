@@ -5,7 +5,7 @@ import {
 } from './engine.js';
 import { createSimulator, SCENARIOS } from './simulator.js';
 import { watchSVG, normalizeFace, iconSVG } from './watchface.js';
-import { addEvent, summarize, eventsToCSV } from './history.js';
+import { addEvent, summarize, eventsToCSV, visibleEvents } from './history.js';
 import { initUI } from './ui.js';
 
 initUI();
@@ -224,14 +224,15 @@ function onInput(e) {
 
 // ---------- Historial ----------
 function renderHistory() {
-  const sum = summarize(app.events);
+  const shown = visibleEvents(app.events);
+  const sum = summarize(shown);
   $('#history-summary').innerHTML = METRIC_IDS.map(
     (id) => `<div class="card p-4"><p class="flex items-center gap-2 font-bold"><span class="text-primary">${iconSVG(id, 'size-5')}</span>${METRICS[id].label}</p>
       <p class="mt-2 text-2xl font-bold">${sum[id].alert}</p><p class="text-sm text-muted">avisos · ${sum[id].pre} pre-avisos</p></div>`,
   ).join('');
   const fmtTime = new Intl.DateTimeFormat('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-  $('#history-list').innerHTML = app.events.length
-    ? app.events
+  $('#history-list').innerHTML = shown.length
+    ? shown
         .slice(0, 50)
         .map((ev) => {
           const m = METRICS[ev.metric];
@@ -349,7 +350,7 @@ document.addEventListener('click', (e) => {
 $('#alert-ok').addEventListener('click', closeAlert);
 $('#mic-toggle').addEventListener('click', toggleMic);
 $('#csv-download').addEventListener('click', () => {
-  const url = URL.createObjectURL(new Blob([eventsToCSV(app.events)], { type: 'text/csv;charset=utf-8' }));
+  const url = URL.createObjectURL(new Blob([eventsToCSV(visibleEvents(app.events))], { type: 'text/csv;charset=utf-8' }));
   const a = Object.assign(document.createElement('a'), { href: url, download: 'umbral-historial.csv' });
   a.click();
   URL.revokeObjectURL(url);
