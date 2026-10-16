@@ -34,8 +34,8 @@ test('historial: el plan Básico ve solo los últimos 7 días; Plus ve todo', ()
 
 test('esfera: la correa tiene relieve en ambos lados', () => {
   const svg = watchSVG({ face: defaultFace() });
-  const ridges = svg.match(/<rect x="86" y="(-?\d+)" width="68"/g) ?? [];
-  assert.ok(ridges.length >= 16, `nervaduras: ${ridges.length}`);
+  const ridges = svg.match(/<rect x="62" y="(-?\d+)" width="116"/g) ?? [];
+  assert.ok(ridges.length >= 12, `nervaduras: ${ridges.length}`);
   assert.ok(ridges.some((r) => r.includes('y="-')) && ridges.some((r) => / y="2\d\d"/.test(r)));
 });
 

@@ -1,6 +1,6 @@
 // Service worker de Umbral: la app funciona sin conexión.
 // Cambiá VERSION al publicar cambios grandes para forzar la actualización de la caché.
-const VERSION = 'umbral-v2';
+const VERSION = 'umbral-v3';
 const PRECACHE = [
   '/',
   '/index.html',
@@ -13,9 +13,12 @@ const PRECACHE = [
   '/assets/js/history.js',
   '/assets/js/landing.js',
   '/assets/js/model.js',
+  '/assets/js/pictos.js',
+  '/assets/js/report.js',
   '/assets/js/simulator.js',
   '/assets/js/ui.js',
   '/assets/js/watchface.js',
+  '/assets/img/reloj-umbral-sensores.webp',
   '/assets/icons/icon.svg',
   '/assets/icons/icon-192.png',
   '/assets/icons/icon-512.png',

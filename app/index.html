@@ -49,6 +49,7 @@
           </div>
         </div>
         <button type="button" class="btn-sun mt-4 w-full" data-open-calm>Momento de calma</button>
+        <button type="button" class="btn-ghost mt-3 w-full" id="shortcut-picto">Botón lateral: mostrar mi pictograma</button>
       </div>
       <div>
         <p class="rounded-2xl bg-surface p-4 text-sm text-muted">Demo: pulso, oxígeno y luz son simulados. El ruido puede medirse con el micrófono de tu teléfono.</p>
@@ -75,7 +76,7 @@
     <!-- Reloj -->
     <section id="panel-reloj" role="tabpanel" aria-labelledby="tab-reloj" class="grid gap-8 md:grid-cols-[minmax(0,20rem)_1fr]" hidden>
       <div class="md:sticky md:top-20 md:self-start">
-        <h2 class="text-3xl font-bold">Tu esfera</h2>
+        <h2 class="text-3xl font-bold">Tu pantalla</h2>
         <div id="face-preview" class="watch mx-auto mt-4 w-56 sm:w-64"></div>
       </div>
       <form class="space-y-6" id="face-form">
@@ -110,6 +111,27 @@
           <legend class="float-left mb-3 w-full text-lg font-bold">Mostrar</legend>
           <label class="clear-both flex items-center gap-3"><input type="checkbox" data-face="numbers"> Números (si lo apagás, solo colores)</label>
           <label class="flex items-center gap-3"><input type="checkbox" data-face="pictograms"> Pictogramas</label>
+        </fieldset>
+      </form>
+    </section>
+
+    <!-- Pictogramas -->
+    <section id="panel-pictos" role="tabpanel" aria-labelledby="tab-pictos" class="grid gap-8 md:grid-cols-[minmax(0,20rem)_1fr]" hidden>
+      <div class="md:sticky md:top-20 md:self-start">
+        <h2 class="text-3xl font-bold">Pictogramas</h2>
+        <p class="mt-2 text-muted">Elegí hasta 4 para usar desde el reloj. Con los botones de abajo probás cómo se ve uno en grande.</p>
+        <div id="pictos-preview" class="watch mx-auto mt-4 w-56 sm:w-64"></div>
+        <div id="pictos-try" class="mt-4 grid grid-cols-2 gap-2" role="group" aria-label="Mostrar un pictograma en el reloj"></div>
+      </div>
+      <form id="pictos-form" class="space-y-6">
+        <fieldset class="card">
+          <legend class="float-left mb-3 w-full text-lg font-bold">Mis pictogramas en el reloj <span id="pictos-count" class="text-muted"></span></legend>
+          <div id="pictos-list" class="clear-both grid grid-cols-2 gap-3 sm:grid-cols-3"></div>
+        </fieldset>
+        <fieldset class="card">
+          <legend class="float-left mb-3 w-full text-lg font-bold">Acceso directo del botón lateral</legend>
+          <p class="clear-both mb-3 text-sm text-muted">Al apretar el botón del costado, el reloj muestra este pictograma sin buscarlo.</p>
+          <div id="pictos-shortcut" class="grid grid-cols-2 gap-3"></div>
         </fieldset>
       </form>
     </section>
@@ -179,7 +201,8 @@
       <p class="mt-3 rounded-2xl bg-surface p-4 text-sm text-muted">Plan gratis: últimos 7 días. Con Umbral Plus ves el historial completo.</p>
       <div id="history-summary" class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4"></div>
       <div class="mt-6 flex flex-wrap gap-3">
-        <button type="button" id="csv-download" class="btn-primary">Descargar CSV</button>
+        <button type="button" id="pdf-download" class="btn-primary">Descargar informe semanal (PDF)</button>
+        <button type="button" id="csv-download" class="btn-ghost">Descargar CSV</button>
         <button type="button" id="history-clear" class="btn-ghost">Borrar historial</button>
       </div>
       <ol id="history-list" class="mt-6 divide-y divide-line rounded-3xl border border-line"></ol>
@@ -187,9 +210,10 @@
   </main>
 
   <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md" aria-label="Secciones de la app">
-    <div class="mx-auto grid max-w-md grid-cols-4" role="tablist" aria-label="Secciones">
+    <div class="mx-auto grid max-w-lg grid-cols-5" role="tablist" aria-label="Secciones">
       <button type="button" role="tab" id="tab-inicio" data-tab="inicio" aria-controls="panel-inicio" aria-selected="true" class="py-3 text-sm font-bold aria-selected:text-primary">Inicio</button>
       <button type="button" role="tab" id="tab-reloj" data-tab="reloj" aria-controls="panel-reloj" aria-selected="false" tabindex="-1" class="py-3 text-sm font-bold text-muted aria-selected:text-primary">Reloj</button>
+      <button type="button" role="tab" id="tab-pictos" data-tab="pictos" aria-controls="panel-pictos" aria-selected="false" tabindex="-1" class="py-3 text-sm font-bold text-muted aria-selected:text-primary">Pictos</button>
       <button type="button" role="tab" id="tab-avisos" data-tab="avisos" aria-controls="panel-avisos" aria-selected="false" tabindex="-1" class="py-3 text-sm font-bold text-muted aria-selected:text-primary">Avisos</button>
       <button type="button" role="tab" id="tab-historial" data-tab="historial" aria-controls="panel-historial" aria-selected="false" tabindex="-1" class="py-3 text-sm font-bold text-muted aria-selected:text-primary">Historial</button>
     </div>

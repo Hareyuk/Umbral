@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { displayValues } from '../assets/js/model.js';
 import { renderInto } from '../scripts/render-faces.mjs';
+import { contrast } from './helpers/contrast.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
@@ -99,6 +100,41 @@ test('landing: refleja el feedback del equipo', () => {
   assert.match(html, /obra social/);
 });
 
+// Segunda ronda de feedback del equipo (16/10/2026).
+test('landing: refleja la segunda ronda de feedback', () => {
+  const html = read('index.html');
+  const app = read('app/index.html');
+  const visible = (h) => h.replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<!--[\s\S]*?-->/g, '');
+  for (const page of [visible(html), visible(app)]) {
+    for (const m of page.matchAll(/<h([123])\b[^>]*>([\s\S]*?)<\/h\1>/g)) {
+      const t = m[2].replace(/<[^>]+>/g, '').trim();
+      assert.ok(!t.endsWith('.'), `título con punto final: "${t}"`);
+    }
+    assert.ok(!/[Ee]sfera/.test(page), '"Esferas" ahora es "Pantallas"');
+    assert.ok(!/diseñamos nosotros/i.test(page));
+    assert.ok(!/persona usuaria/.test(page));
+  }
+  assert.match(html, /href="#pantallas">Pantallas</);
+  assert.ok(!/instalar-title|Llevá Umbral en tu teléfono/.test(html), 'sin la sección de instalar repetida');
+  assert.ok(!/sin costo a través|se obtiene gratis/i.test(html), 'el reloj se gestiona con la obra social, no es gratis');
+  assert.match(html, /cobertura total o descuento|total o parcialmente/);
+  assert.match(html, /estudio_discapacidad_12_18\.pdf">INDEC, 2018</);
+  assert.match(html, /La decisión es siempre del usuario\./);
+  assert.match(html, /Lo vamos a validar/);
+  assert.match(html, /reloj-umbral-sensores\.webp/);
+  for (const sensor of ['Micrófono digital', 'Sensor de luz ambiental', 'Sensor óptico de pulso y oxígeno', 'Sensor de estrés', 'Acelerómetro y giroscopio', 'Parlante']) {
+    assert.ok(html.includes(sensor), sensor);
+  }
+  for (const nombre of ['Franco Nahuel Preiss', 'María Luz Sueldo', 'Brisa Aimee Rodriguez', 'Federico Julián Pérez Trench', 'Axel Julián Dumas Cutuli']) {
+    assert.ok(html.includes(nombre), nombre);
+  }
+  assert.match(html, /informe semanal en PDF/i);
+  assert.match(app, /id="pdf-download"/);
+  assert.match(app, /data-tab="pictos"/);
+  // Las descripciones de los datos empiezan con mayúscula.
+  for (const m of html.matchAll(/<p class="text-5xl[^>]*>[^<]+<\/p>\s*<p class="mt-3">(.)/g)) assert.match(m[1], /[A-ZÁÉÍÓÚÑ]/);
+});
+
 test('landing: las esferas pre-renderizadas están al día (npm run build:faces)', () => {
   const html = read('index.html');
   assert.equal(renderInto(html), html);
@@ -147,14 +183,6 @@ test('service worker: precachea archivos existentes y todo el JS del sitio', () 
 function tokens(css, marker) {
   const block = css.split(`/* tokens:${marker} */`)[1].match(/\{([\s\S]*?)\}/)[1];
   return Object.fromEntries([...block.matchAll(/--([\w-]+):\s*(#[0-9A-Fa-f]{6})/g)].map((m) => [m[1], m[2]]));
-}
-function luminance(hex) {
-  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
-export function contrast(a, b) {
-  const [l1, l2] = [luminance(a), luminance(b)].sort((x, y) => y - x);
-  return (l1 + 0.05) / (l2 + 0.05);
 }
 
 const TEXT_PAIRS = [

@@ -1,4 +1,4 @@
-// App demo de Umbral. Une el simulador, el motor de umbrales y la esfera con los formularios estáticos de app/index.html.
+// App demo de Umbral. Une el simulador, el motor de umbrales, la pantalla del reloj y los pictogramas con los formularios estáticos de app/index.html.
 import {
   METRICS, METRIC_IDS, defaultConfig, normalizeConfig, createState, step, levelsOf, overallLevel,
   thresholdsOf, alertCopy, formatValue, rmsToDb, smooth, referenceFor,
@@ -6,6 +6,8 @@ import {
 import { createSimulator, SCENARIOS } from './simulator.js';
 import { watchSVG, normalizeFace, iconSVG } from './watchface.js';
 import { addEvent, summarize, eventsToCSV, visibleEvents } from './history.js';
+import { PICTOS, PICTO_IDS, MAX_WATCH_PICTOS, normalizePictos } from './pictos.js';
+import { buildWeeklyReportPDF } from './report.js';
 import { initUI } from './ui.js';
 
 initUI();
@@ -27,6 +29,9 @@ const saved = load();
 const app = {
   config: normalizeConfig(saved.config),
   face: normalizeFace(saved.face),
+  pictos: normalizePictos(saved.pictos),
+  pictoShow: null, // pictograma que el reloj muestra en grande
+  pictoUntil: 0,
   profile: { supportName: '', micOffset: 94, ...saved.profile },
   events: Array.isArray(saved.events) ? saved.events : [],
   scenario: SCENARIOS[saved.scenario] ? saved.scenario : 'casa',
@@ -42,8 +47,8 @@ const sim = createSimulator({ seed: Date.now() % 100000, scenario: app.scenario 
 
 function persist() {
   try {
-    const { config, face, profile, events, scenario } = app;
-    localStorage.setItem(STORE, JSON.stringify({ config, face, profile, events, scenario }));
+    const { config, face, pictos, profile, events, scenario } = app;
+    localStorage.setItem(STORE, JSON.stringify({ config, face, pictos, profile, events, scenario }));
   } catch {
     /* sin almacenamiento: la demo sigue funcionando en memoria */
   }
@@ -115,8 +120,11 @@ function sparkPoints(values, id) {
 function renderLive() {
   const levels = levelsOf(app.state);
   const thresholds = thresholdsOf(app.config);
-  $('#app-watch').innerHTML = watchSVG({ readings: app.readings, levels, face: app.face, thresholds, alert: app.alert });
+  // Un aviso tiene prioridad sobre un pictograma mostrado en grande.
+  const showing = !app.alert && app.pictoShow ? { show: app.pictoShow } : null;
+  $('#app-watch').innerHTML = watchSVG({ readings: app.readings, levels, face: app.face, thresholds, alert: app.alert, pictos: showing });
   if (app.tab === 'reloj') $('#face-preview').innerHTML = watchSVG({ readings: app.readings, levels, face: app.face, thresholds });
+  if (app.tab === 'pictos') $('#pictos-preview').innerHTML = watchSVG({ face: app.face, pictos: showing ?? app.pictos });
   for (const card of $$('#metric-cards [data-metric]')) {
     const id = card.dataset.metric;
     const mc = app.config.metrics[id];
@@ -149,6 +157,43 @@ function tick() {
   app.state = res.state;
   res.events.forEach(handleEvent);
   if (app.alert && now > app.alertUntil) app.alert = null;
+  if (app.pictoShow && now > app.pictoUntil) app.pictoShow = null;
+  renderLive();
+}
+
+// ---------- Pictogramas ----------
+function showPicto(id) {
+  if (!PICTOS[id]) return;
+  app.pictoShow = id;
+  app.pictoUntil = Date.now() + 8000;
+  $('#live').textContent = `El reloj muestra: ${PICTOS[id].label}`;
+  renderLive();
+}
+
+function renderPictos() {
+  const { items, shortcut } = app.pictos;
+  $('#pictos-count').textContent = `(${items.length} de ${MAX_WATCH_PICTOS})`;
+  $('#pictos-list').innerHTML = PICTO_IDS.map((id) => {
+    const on = items.includes(id);
+    const full = !on && items.length >= MAX_WATCH_PICTOS;
+    return `<label class="flex items-center gap-3 rounded-2xl bg-bg p-3 ${full ? 'opacity-60' : ''}">
+      <input type="checkbox" value="${id}" data-picto="item" ${on ? 'checked' : ''} ${full ? 'disabled' : ''}>
+      <span class="text-primary">${iconSVG(id, 'size-7')}</span><span>${PICTOS[id].label}</span></label>`;
+  }).join('');
+  $('#pictos-shortcut').innerHTML = items.length
+    ? items.map((id) => `<label class="flex items-center gap-3 rounded-2xl bg-bg p-3"><input type="radio" name="shortcut" value="${id}" data-picto="shortcut" ${id === shortcut ? 'checked' : ''}> ${PICTOS[id].short}</label>`).join('')
+    : '<p class="text-muted">Primero elegí al menos un pictograma.</p>';
+  $('#pictos-try').innerHTML = items.map((id) => `<button type="button" class="btn-ghost px-3 py-2 text-sm" data-show-picto="${id}">Mostrar «${PICTOS[id].short}»</button>`).join('');
+}
+
+function onPictoInput(el) {
+  const p = { ...app.pictos };
+  if (el.dataset.picto === 'item') {
+    p.items = el.checked ? [...p.items, el.value] : p.items.filter((id) => id !== el.value);
+  } else p.shortcut = el.value;
+  app.pictos = normalizePictos(p);
+  persist();
+  renderPictos();
   renderLive();
 }
 
@@ -192,6 +237,10 @@ function syncForms() {
 
 function onInput(e) {
   const el = e.target;
+  if (el.dataset.picto) {
+    if (e.type === 'change') onPictoInput(el);
+    return;
+  }
   if (el.dataset.cfg) {
     setPath(app.config, el.dataset.cfg, el.type === 'checkbox' ? el.checked : Number(el.value));
     app.config = normalizeConfig(app.config);
@@ -258,6 +307,7 @@ function selectTab(name, focus = false) {
     if (on && focus) t.focus();
   }
   if (name === 'historial') renderHistory();
+  if (name === 'pictos') renderPictos();
   history.replaceState(null, '', name === 'inicio' ? location.pathname : `#${name}`);
   renderLive();
 }
@@ -338,6 +388,8 @@ $$('[data-scenario]').forEach((b) => b.setAttribute('aria-pressed', String(b.dat
 document.addEventListener('input', onInput);
 document.addEventListener('change', onInput);
 document.addEventListener('click', (e) => {
+  const pic = e.target.closest('[data-show-picto]');
+  if (pic) showPicto(pic.dataset.showPicto);
   const sc = e.target.closest('[data-scenario]');
   if (sc) {
     app.scenario = sc.dataset.scenario;
@@ -349,6 +401,16 @@ document.addEventListener('click', (e) => {
 });
 $('#alert-ok').addEventListener('click', closeAlert);
 $('#mic-toggle').addEventListener('click', toggleMic);
+$('#shortcut-picto').addEventListener('click', () => {
+  if (app.pictos.shortcut) showPicto(app.pictos.shortcut);
+  else toast('Elegí tus pictogramas en la pestaña Pictos.');
+});
+$('#pdf-download').addEventListener('click', () => {
+  const url = URL.createObjectURL(new Blob([buildWeeklyReportPDF(app.events)], { type: 'application/pdf' }));
+  const a = Object.assign(document.createElement('a'), { href: url, download: 'umbral-informe-semanal.pdf' });
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
 $('#csv-download').addEventListener('click', () => {
   const url = URL.createObjectURL(new Blob([eventsToCSV(visibleEvents(app.events))], { type: 'text/csv;charset=utf-8' }));
   const a = Object.assign(document.createElement('a'), { href: url, download: 'umbral-historial.csv' });
@@ -364,6 +426,7 @@ $('#reset-all').addEventListener('click', () => {
   if (!confirm('¿Restablecer umbrales, esfera e historial?')) return;
   app.config = defaultConfig();
   app.face = normalizeFace();
+  app.pictos = normalizePictos();
   app.profile = { supportName: '', micOffset: 94 };
   app.events = [];
   persist();
