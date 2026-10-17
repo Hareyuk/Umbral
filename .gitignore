@@ -5,5 +5,7 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-# Documentos de trabajo del equipo (pitch, chat, marco legal, README): quedan solo en las compus del equipo.
+# Documentos de trabajo del equipo (pitch, chat, marco legal): quedan solo en las compus del equipo.
+# El README sí se sube: es la presentación del repo en GitHub.
 *.md
+!/README.md
