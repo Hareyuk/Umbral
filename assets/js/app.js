@@ -8,6 +8,10 @@ import { watchSVG, normalizeFace, iconSVG } from './watchface.js';
 import { addEvent, summarize, eventsToCSV, visibleEvents } from './history.js';
 import { PICTOS, PICTO_IDS, MAX_WATCH_PICTOS, normalizePictos } from './pictos.js';
 import { buildWeeklyReportPDF } from './report.js';
+import {
+  STEP_ICONS, MAX_ROUTINES, MAX_STEPS, MAX_NAME, MAX_STEP_TEXT, normalizeRoutines, newRoutine,
+  addStep, removeStep, moveStep, updateStep, startRun, advance, runScreen,
+} from './routines.js';
 import { initUI } from './ui.js';
 
 initUI();
@@ -30,6 +34,9 @@ const app = {
   config: normalizeConfig(saved.config),
   face: normalizeFace(saved.face),
   pictos: normalizePictos(saved.pictos),
+  routines: normalizeRoutines(saved.routines),
+  run: null, // rutina en curso en el reloj
+  draft: null, // rutina que se está editando
   pictoShow: null, // pictograma que el reloj muestra en grande
   pictoUntil: 0,
   profile: { supportName: '', micOffset: 94, ...saved.profile },
@@ -47,8 +54,8 @@ const sim = createSimulator({ seed: Date.now() % 100000, scenario: app.scenario 
 
 function persist() {
   try {
-    const { config, face, pictos, profile, events, scenario } = app;
-    localStorage.setItem(STORE, JSON.stringify({ config, face, pictos, profile, events, scenario }));
+    const { config, face, pictos, routines, profile, events, scenario } = app;
+    localStorage.setItem(STORE, JSON.stringify({ config, face, pictos, routines, profile, events, scenario }));
   } catch {
     /* sin almacenamiento: la demo sigue funcionando en memoria */
   }
@@ -122,8 +129,14 @@ function renderLive() {
   const thresholds = thresholdsOf(app.config);
   // Un aviso tiene prioridad sobre un pictograma mostrado en grande.
   const showing = !app.alert && app.pictoShow ? { show: app.pictoShow } : null;
-  $('#app-watch').innerHTML = watchSVG({ readings: app.readings, levels, face: app.face, thresholds, alert: app.alert, pictos: showing });
+  const routine = currentRun();
+  $('#app-watch').innerHTML = watchSVG({ readings: app.readings, levels, face: app.face, thresholds, alert: app.alert, pictos: showing, routine });
   if (app.tab === 'reloj') $('#face-preview').innerHTML = watchSVG({ readings: app.readings, levels, face: app.face, thresholds });
+  if (app.tab === 'rutinas') {
+    const first = app.draft ?? app.routines[0];
+    const preview = routine ?? (first ? runScreen(startRun(first), first) : null);
+    $('#routine-preview').innerHTML = watchSVG({ face: app.face, routine: preview });
+  }
   if (app.tab === 'pictos') $('#pictos-preview').innerHTML = watchSVG({ face: app.face, pictos: showing ?? app.pictos });
   for (const card of $$('#metric-cards [data-metric]')) {
     const id = card.dataset.metric;
@@ -159,6 +172,143 @@ function tick() {
   if (app.alert && now > app.alertUntil) app.alert = null;
   if (app.pictoShow && now > app.pictoUntil) app.pictoShow = null;
   renderLive();
+}
+
+
+// ---------- Rutinas ----------
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const findRoutine = (id) => app.routines.find((r) => r.id === id);
+
+function currentRun() {
+  const routine = app.run && findRoutine(app.run.id);
+  return routine ? runScreen(app.run, routine) : null;
+}
+
+function iconOptions(selected) {
+  return Object.entries(STEP_ICONS)
+    .map(([id, label]) => `<option value="${id}" ${id === selected ? 'selected' : ''}>${esc(label)}</option>`)
+    .join('');
+}
+
+function routineEditorHTML(r) {
+  const steps = r.steps
+    .map((s, i) => `<li class="flex flex-wrap items-center gap-2 rounded-2xl bg-bg p-3">
+        <span class="text-primary">${iconSVG(s.icon, 'size-7')}</span>
+        <label class="sr-only" for="step-icon-${i}">Pictograma del paso ${i + 1}</label>
+        <select id="step-icon-${i}" class="rounded-xl border-2 border-line-strong bg-bg px-2 py-2" data-r-step="icon" data-i="${i}">${iconOptions(s.icon)}</select>
+        <label class="sr-only" for="step-text-${i}">Texto del paso ${i + 1}</label>
+        <input id="step-text-${i}" type="text" maxlength="${MAX_STEP_TEXT}" value="${esc(s.text)}" class="min-w-0 flex-1 rounded-xl border-2 border-line-strong bg-bg px-3 py-2" data-r-step="text" data-i="${i}">
+        <button type="button" class="rounded-full px-3 py-2 font-bold hover:bg-surface-2" data-r-action="up" data-i="${i}" aria-label="Subir paso ${i + 1}">↑</button>
+        <button type="button" class="rounded-full px-3 py-2 font-bold hover:bg-surface-2" data-r-action="down" data-i="${i}" aria-label="Bajar paso ${i + 1}">↓</button>
+        <button type="button" class="rounded-full px-3 py-2 font-bold hover:bg-surface-2" data-r-action="remove-step" data-i="${i}" aria-label="Borrar paso ${i + 1}">✕</button>
+      </li>`)
+    .join('');
+  return `<li class="card space-y-4">
+      <label class="block font-bold" for="routine-name">Nombre de la rutina</label>
+      <input id="routine-name" type="text" maxlength="${MAX_NAME}" value="${esc(r.name)}" class="w-full rounded-xl border-2 border-line-strong bg-bg px-4 py-2" data-r-field="name">
+      <ol class="space-y-2">${steps}</ol>
+      <div class="flex flex-wrap gap-2">
+        <button type="button" class="btn-ghost px-4 py-2" data-r-action="add-step" ${r.steps.length >= MAX_STEPS ? 'disabled' : ''}>Agregar paso</button>
+        <button type="button" class="btn-primary px-4 py-2" data-r-action="save">Guardar</button>
+        <button type="button" class="btn-ghost px-4 py-2" data-r-action="cancel">Cancelar</button>
+      </div>
+    </li>`;
+}
+
+function renderRoutines() {
+  $('#routine-list').innerHTML = app.routines
+    .map((r) => {
+      if (app.draft && app.draft.id === r.id) return routineEditorHTML(app.draft);
+      const running = app.run?.id === r.id;
+      return `<li class="card">
+        <div class="flex flex-wrap items-center gap-3">
+          <h3 class="text-xl font-bold">${esc(r.name)}</h3>
+          <span class="text-sm text-muted">${r.steps.length} pasos</span>
+          ${running ? '<span class="rounded-full bg-ok-bg px-3 py-1 text-xs font-bold text-ok">En curso</span>' : ''}
+        </div>
+        <ol class="mt-3 flex flex-wrap gap-2 text-primary" aria-label="Pasos">${r.steps.map((s) => `<li title="${esc(s.text)}">${iconSVG(s.icon, 'size-6')}<span class="sr-only">${esc(s.text)}</span></li>`).join('')}</ol>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button type="button" class="btn-primary px-4 py-2" data-r-action="start" data-id="${r.id}">${running ? 'Reiniciar' : 'Empezar en el reloj'}</button>
+          <button type="button" class="btn-ghost px-4 py-2" data-r-action="edit" data-id="${r.id}">Editar</button>
+          <button type="button" class="btn-ghost px-4 py-2" data-r-action="delete" data-id="${r.id}">Borrar</button>
+        </div>
+      </li>`;
+    })
+    .join('');
+  // Una rutina nueva que todavía no se guardó aparece al final.
+  if (app.draft && !findRoutine(app.draft.id)) $('#routine-list').insertAdjacentHTML('beforeend', routineEditorHTML(app.draft));
+  $('#routine-new').disabled = Boolean(app.draft) || app.routines.length >= MAX_ROUTINES;
+}
+
+function renderRunControls() {
+  const screen = currentRun();
+  const running = Boolean(screen);
+  $('#run-box').hidden = !running;
+  $('#routine-controls').hidden = !running;
+  if (running) {
+    $('#run-title').textContent = screen.done ? `${screen.name}: terminada` : `${screen.name} · paso ${screen.index + 1} de ${screen.total}`;
+    $$('[data-run="next"]').forEach((b) => (b.textContent = screen.done ? 'Listo' : screen.index + 1 === screen.total ? 'Terminar rutina' : 'Siguiente'));
+  }
+}
+
+function runRoutineAction(action) {
+  const routine = app.run && findRoutine(app.run.id);
+  if (!routine) return;
+  if (action === 'stop' || (action === 'next' && app.run.done)) app.run = null;
+  else {
+    app.run = advance(app.run, routine, action === 'prev' ? -1 : 1);
+    if (app.run.done) {
+      $('#live').textContent = `Terminaste la rutina ${routine.name}`;
+      if (navigator.vibrate) navigator.vibrate([100, 80, 100]);
+    } else $('#live').textContent = `Paso ${app.run.index + 1}: ${routine.steps[app.run.index].text}`;
+  }
+  renderRunControls();
+  if (app.tab === 'rutinas') renderRoutines();
+  renderLive();
+}
+
+function onRoutineClick(btn) {
+  const action = btn.dataset.rAction;
+  const i = Number(btn.dataset.i);
+  if (action === 'start') {
+    const routine = findRoutine(btn.dataset.id);
+    app.run = startRun(routine);
+    $('#live').textContent = `Rutina ${routine.name}. Paso 1: ${routine.steps[0].text}`;
+  } else if (action === 'edit') app.draft = structuredClone(findRoutine(btn.dataset.id));
+  else if (action === 'delete') {
+    if (!confirm('¿Borrar esta rutina?')) return;
+    app.routines = app.routines.filter((r) => r.id !== btn.dataset.id);
+    if (app.run?.id === btn.dataset.id) app.run = null;
+    persist();
+  } else if (action === 'add-step') app.draft = addStep(app.draft);
+  else if (action === 'remove-step') app.draft = removeStep(app.draft, i);
+  else if (action === 'up' || action === 'down') app.draft = moveStep(app.draft, i, action === 'up' ? -1 : 1);
+  else if (action === 'cancel') app.draft = null;
+  else if (action === 'save') {
+    const [clean] = normalizeRoutines([app.draft]);
+    if (!clean) return toast('La rutina necesita un nombre y al menos un paso con texto.');
+    const exists = findRoutine(clean.id);
+    app.routines = exists ? app.routines.map((r) => (r.id === clean.id ? clean : r)) : [...app.routines, clean];
+    if (app.run?.id === clean.id) app.run = startRun(clean);
+    app.draft = null;
+    persist();
+    toast('Rutina guardada.');
+  }
+  renderRoutines();
+  renderRunControls();
+  renderLive();
+  if (action === 'up' || action === 'down') document.querySelector(`[data-r-action="${action}"][data-i="${i + (action === 'up' ? -1 : 1)}"]`)?.focus();
+}
+
+// Escribir en el editor no vuelve a dibujar la lista (así no se pierde el foco).
+function onRoutineInput(el) {
+  if (!app.draft) return;
+  if (el.dataset.rField === 'name') app.draft = { ...app.draft, name: el.value.slice(0, MAX_NAME) };
+  else {
+    const i = Number(el.dataset.i);
+    app.draft = updateStep(app.draft, i, { [el.dataset.rStep]: el.value });
+    if (el.dataset.rStep === 'icon') renderRoutines();
+  }
 }
 
 // ---------- Pictogramas ----------
@@ -237,6 +387,10 @@ function syncForms() {
 
 function onInput(e) {
   const el = e.target;
+  if (el.dataset.rField || el.dataset.rStep) {
+    onRoutineInput(el);
+    return;
+  }
   if (el.dataset.picto) {
     if (e.type === 'change') onPictoInput(el);
     return;
@@ -308,6 +462,7 @@ function selectTab(name, focus = false) {
   }
   if (name === 'historial') renderHistory();
   if (name === 'pictos') renderPictos();
+  if (name === 'rutinas') renderRoutines();
   history.replaceState(null, '', name === 'inicio' ? location.pathname : `#${name}`);
   renderLive();
 }
@@ -388,6 +543,16 @@ $$('[data-scenario]').forEach((b) => b.setAttribute('aria-pressed', String(b.dat
 document.addEventListener('input', onInput);
 document.addEventListener('change', onInput);
 document.addEventListener('click', (e) => {
+  const rb = e.target.closest('[data-r-action]');
+  if (rb) return onRoutineClick(rb);
+  const runBtn = e.target.closest('[data-run]');
+  if (runBtn) return runRoutineAction(runBtn.dataset.run);
+  if (e.target.closest('#routine-new')) {
+    app.draft = newRoutine();
+    renderRoutines();
+    document.getElementById('routine-name')?.select();
+    return;
+  }
   const pic = e.target.closest('[data-show-picto]');
   if (pic) showPicto(pic.dataset.showPicto);
   const sc = e.target.closest('[data-scenario]');
@@ -427,6 +592,9 @@ $('#reset-all').addEventListener('click', () => {
   app.config = defaultConfig();
   app.face = normalizeFace();
   app.pictos = normalizePictos();
+  app.routines = normalizeRoutines();
+  app.run = null;
+  app.draft = null;
   app.profile = { supportName: '', micOffset: 94 };
   app.events = [];
   persist();

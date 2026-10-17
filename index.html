@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Umbral · Su reloj sabe cuándo es demasiado</title>
-  <meta name="description" content="Umbral es una app para smartwatch pensada para chicos y adolescentes con autismo y sus familias: avisa antes de la sobrecarga sensorial y da más independencia a todos.">
+  <meta name="description" content="Umbral es una app para smartwatch pensada para chicos y adolescentes con autismo y sus familias: avisa antes de la sobrecarga para que haya menos crisis y ataques de pánico, y más independencia para todos.">
   <meta name="theme-color" content="#0A1626">
   <meta property="og:title" content="Umbral · Su reloj sabe cuándo es demasiado">
   <meta property="og:description" content="Más independencia para chicos con autismo. Más tranquilidad para su familia.">
@@ -48,23 +48,27 @@
   </header>
 
   <main id="main">
-    <!-- Hero -->
-    <section class="relative overflow-hidden px-4 pb-16 pt-14 text-center sm:pt-20" aria-labelledby="hero-title">
-      <p class="eyebrow">Nuevo · Para familias y acompañantes de chicos con autismo</p>
-      <h1 id="hero-title" class="mx-auto mt-4 max-w-4xl text-5xl font-bold tracking-tight sm:text-7xl">
-        Umbral<br><span class="text-primary">Su reloj sabe cuándo es demasiado</span>
-      </h1>
-      <p class="mx-auto mt-6 max-w-2xl text-lg text-muted sm:text-xl">
-        Una app para smartwatch que mide el ruido, la luz, el pulso y el oxígeno, y le avisa a tiempo a la persona con autismo, antes de la sobrecarga. La persona gana independencia; la familia, tranquilidad.
-      </p>
-      <div class="mt-8 flex flex-wrap justify-center gap-3">
-        <a href="/app/" class="btn-primary">Probar la demo</a>
-        <button type="button" class="btn-ghost" data-install>Instalar en mi teléfono</button>
-      </div>
+    <!-- Hero: textos a la izquierda y reloj en vivo a la derecha (apilado en celular) -->
+    <section class="relative overflow-hidden px-4 py-12 lg:py-8" aria-labelledby="hero-title">
+      <div class="mx-auto grid max-w-6xl items-center gap-10 lg:min-h-[calc(100svh-7.5rem)] lg:grid-cols-[1.15fr_1fr] lg:gap-12">
+        <div class="text-center lg:text-left">
+          <p class="eyebrow">Nuevo · Para familias y acompañantes de chicos con autismo</p>
+          <h1 id="hero-title" class="mt-5">
+            <img src="/assets/img/logo-umbral.webp" width="2000" height="456" alt="Umbral" class="mx-auto h-12 w-auto sm:h-16 lg:mx-0">
+            <span class="mt-5 block text-4xl font-bold tracking-tight text-primary sm:text-5xl xl:text-6xl">Su reloj sabe cuándo es demasiado</span>
+          </h1>
+          <p class="mx-auto mt-6 max-w-xl text-lg text-muted sm:text-xl lg:mx-0">
+            Una app para smartwatch que le avisa a tiempo a chicos y adolescentes con autismo cuando el ruido, la luz o su pulso se acercan al límite. Menos crisis y ataques de pánico, más independencia: un alivio para los chicos y para sus padres.
+          </p>
+          <div class="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
+            <a href="/app/" class="btn-primary">Probar la demo</a>
+            <button type="button" class="btn-ghost" data-install>Instalar en mi teléfono</button>
+          </div>
+        </div>
 
-      <figure class="relative mx-auto mt-12 max-w-md">
-        <div class="hero-glow absolute inset-0 -z-10" aria-hidden="true"></div>
-        <div id="hero-watch" class="watch float mx-auto w-64 sm:w-80"><!-- face:hero --><svg viewBox="0 -64 240 368" role="img" aria-label="Reloj Umbral. Ruido 64 dB, subiendo. Pulso 84 lpm, tranquilo. Luz 700 lux, tranquilo. Oxígeno 98 %, tranquilo. Tu umbral de ruido: 75 dB." xmlns="http://www.w3.org/2000/svg">
+        <figure class="relative mx-auto w-full max-w-md text-center">
+          <div class="hero-glow absolute inset-0 -z-10" aria-hidden="true"></div>
+          <div id="hero-watch" class="watch float mx-auto w-56 sm:w-64 xl:w-72"><!-- face:hero --><svg viewBox="0 -64 240 368" role="img" aria-label="Reloj Umbral. Ruido 64 dB, subiendo. Pulso 84 lpm, tranquilo. Luz 700 lux, tranquilo. Oxígeno 98 %, tranquilo. Tu umbral de ruido: 75 dB." xmlns="http://www.w3.org/2000/svg">
 <rect x="50" y="-64" width="140" height="120" rx="22" fill="#2C3537"/>
 <rect x="50" y="184" width="140" height="120" rx="22" fill="#2C3537"/>
 <g aria-hidden="true"><rect x="62" y="-54" width="116" height="4" rx="2" fill="#3F4C50"/><circle cx="120" cy="-52" r="2.6" fill="#56656A"/><rect x="62" y="-44" width="116" height="4" rx="2" fill="#3F4C50"/><circle cx="120" cy="-42" r="2.6" fill="#56656A"/><rect x="62" y="-34" width="116" height="4" rx="2" fill="#3F4C50"/><circle cx="120" cy="-32" r="2.6" fill="#56656A"/><rect x="62" y="-24" width="116" height="4" rx="2" fill="#3F4C50"/><circle cx="120" cy="-22" r="2.6" fill="#56656A"/><rect x="62" y="-14" width="116" height="4" rx="2" fill="#3F4C50"/><circle cx="120" cy="-12" r="2.6" fill="#56656A"/><rect x="62" y="-4" width="116" height="4" rx="2" fill="#3F4C50"/><circle cx="120" cy="-2" r="2.6" fill="#56656A"/><rect x="62" y="238" width="116" height="4" rx="2" fill="#3F4C50"/><circle cx="120" cy="240" r="2.6" fill="#56656A"/><rect x="62" y="248" width="116" height="4" rx="2" fill="#3F4C50"/><circle cx="120" cy="250" r="2.6" fill="#56656A"/><rect x="62" y="258" width="116" height="4" rx="2" fill="#3F4C50"/><circle cx="120" cy="260" r="2.6" fill="#56656A"/><rect x="62" y="268" width="116" height="4" rx="2" fill="#3F4C50"/><circle cx="120" cy="270" r="2.6" fill="#56656A"/><rect x="62" y="278" width="116" height="4" rx="2" fill="#3F4C50"/><circle cx="120" cy="280" r="2.6" fill="#56656A"/><rect x="62" y="288" width="116" height="4" rx="2" fill="#3F4C50"/><circle cx="120" cy="290" r="2.6" fill="#56656A"/></g>
@@ -74,17 +78,16 @@
 <circle cx="120" cy="17" r="3" fill="#0F1415"/>
 <g transform="translate(107 37) scale(1.08)" fill="none" stroke="#FFD23F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h3l5-4v14l-5-4H4z"/><path d="M16 9.5a3.5 3.5 0 0 1 0 5"/><path d="M18.5 7a7 7 0 0 1 0 10"/></g><text x="120" y="82" font-size="11" fill="#B9CCF5" text-anchor="middle" font-family="Atkinson Hyperlegible, system-ui, sans-serif" letter-spacing="1.5" font-weight="700">RUIDO</text><text x="120" y="122" font-size="46" fill="#FFFFFF" text-anchor="middle" font-family="Atkinson Hyperlegible, system-ui, sans-serif" font-weight="700">64</text><text x="120" y="141" font-size="13" fill="#B9CCF5" text-anchor="middle" font-family="Atkinson Hyperlegible, system-ui, sans-serif" >dB</text><rect x="44" y="150" width="152" height="10" rx="5" fill="#1C365A"/><rect x="44" y="150" width="64.6" height="10" rx="5" fill="#FFD23F"/><line x1="129.5" y1="145" x2="129.5" y2="165" stroke="#49DE96" stroke-width="3" stroke-linecap="round"/><g transform="translate(69 173) scale(0.58)" fill="none" stroke="#49DE96" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></g><text x="76" y="204" font-size="13" fill="#FFFFFF" text-anchor="middle" font-family="Atkinson Hyperlegible, system-ui, sans-serif" font-weight="700">84</text><g transform="translate(113 173) scale(0.58)" fill="none" stroke="#49DE96" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8z"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g><text x="120" y="204" font-size="13" fill="#FFFFFF" text-anchor="middle" font-family="Atkinson Hyperlegible, system-ui, sans-serif" font-weight="700">700</text><g transform="translate(157 173) scale(0.58)" fill="none" stroke="#49DE96" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c2.5 3.2 6 7 6 10.5a6 6 0 0 1-12 0C6 10 9.5 6.2 12 3z"/><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/></g><text x="164" y="204" font-size="13" fill="#FFFFFF" text-anchor="middle" font-family="Atkinson Hyperlegible, system-ui, sans-serif" font-weight="700">98</text>
 </svg><!-- /face:hero --></div>
-        <figcaption class="mt-6 text-sm text-muted">
-          Demo en vivo con datos simulados. Elegí un lugar:
-        </figcaption>
-        <div class="mt-3 flex flex-wrap justify-center gap-2" role="group" aria-label="Lugar simulado">
-          <button type="button" class="chip" data-hero-scenario="casa" aria-pressed="false">Casa</button>
-          <button type="button" class="chip" data-hero-scenario="colectivo" aria-pressed="true">Colectivo</button>
-          <button type="button" class="chip" data-hero-scenario="super" aria-pressed="false">Supermercado</button>
-          <button type="button" class="chip" data-hero-scenario="recital" aria-pressed="false">Recital</button>
-        </div>
-        <p id="hero-status" class="mt-4 min-h-6 font-bold text-ink" aria-live="polite"></p>
-      </figure>
+          <figcaption class="mt-4 text-sm text-muted">Demo en vivo con datos simulados. Elegí un lugar:</figcaption>
+          <div class="mt-3 flex flex-wrap justify-center gap-2" role="group" aria-label="Lugar simulado">
+            <button type="button" class="chip" data-hero-scenario="casa" aria-pressed="false">Casa</button>
+            <button type="button" class="chip" data-hero-scenario="colectivo" aria-pressed="true">Colectivo</button>
+            <button type="button" class="chip" data-hero-scenario="super" aria-pressed="false">Supermercado</button>
+            <button type="button" class="chip" data-hero-scenario="recital" aria-pressed="false">Recital</button>
+          </div>
+          <p id="hero-status" class="mt-3 min-h-6 font-bold text-ink" aria-live="polite"></p>
+        </figure>
+      </div>
     </section>
 
     <!-- Statement -->
@@ -93,7 +96,7 @@
         <span class="text-sun">Ruido</span> · Luz · <span class="text-sun">Pulso</span> · Oxígeno
       </h2>
       <p class="mx-auto mt-6 max-w-2xl text-lg opacity-90 sm:text-xl">
-        Cuatro señales básicas que anticipan una sobrecarga sensorial. Umbral las mira todo el día y avisa con vibración, color y pictogramas. Sin sonidos. Sin destellos. Así nadie tiene que estar en alerta todo el tiempo.
+        Cuatro señales básicas que anticipan una sobrecarga sensorial. Umbral las mira todo el día y avisa con vibración, color y pictogramas. Sin sonidos. Sin destellos. Así se anticipan las crisis y los ataques de pánico, y nadie tiene que estar en alerta todo el tiempo.
       </p>
       <p class="mt-10 text-sm font-bold uppercase tracking-widest text-sun">Y mucho más</p>
       <ul class="mx-auto mt-4 flex max-w-3xl flex-wrap justify-center gap-2 text-sm font-bold">
@@ -103,6 +106,7 @@
         <li class="rounded-full bg-white/10 px-4 py-2">Momento de calma</li>
         <li class="rounded-full bg-white/10 px-4 py-2">Avisos a la familia</li>
         <li class="rounded-full bg-white/10 px-4 py-2">Pictogramas en el reloj</li>
+        <li class="rounded-full bg-white/10 px-4 py-2">Rutinas paso a paso</li>
         <li class="rounded-full bg-white/10 px-4 py-2">Nivel de estrés</li>
         <li class="rounded-full bg-white/10 px-4 py-2">Historial e informe semanal en PDF</li>
       </ul>
@@ -113,7 +117,7 @@
       <p class="eyebrow">Por qué existe Umbral</p>
       <h2 id="problema-title" class="mt-3 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">La barrera no está en la persona, está en el entorno</h2>
       <p class="mt-6 max-w-3xl text-lg text-muted">
-        Un colectivo lleno, el timbre del recreo o la luz fuerte del supermercado pueden pasar de molestos a insoportables en minutos. Muchas veces la sobrecarga llega antes que las palabras para pedir ayuda, y la familia vive pendiente de anticiparla. Umbral parte del modelo social de la discapacidad: no busca cambiar a la persona, busca leer el entorno a tiempo para que todos ganen independencia.
+        Un colectivo lleno, el timbre del recreo o la luz fuerte del supermercado pueden pasar de molestos a insoportables en minutos y terminar en una crisis o un ataque de pánico. Muchas veces la sobrecarga llega antes que las palabras para pedir ayuda, y la familia vive pendiente de anticiparla. Umbral parte del modelo social de la discapacidad: no busca cambiar a la persona, busca leer el entorno a tiempo para que todos ganen independencia.
       </p>
       <ul class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <li class="card">
@@ -202,7 +206,7 @@
       <div class="mt-12 grid gap-4 md:grid-cols-3">
         <article class="rounded-3xl bg-primary p-8 text-on-primary md:col-span-2">
           <h3 class="text-3xl font-bold">Avisa antes del límite</h3>
-          <p class="mt-3 max-w-xl text-lg opacity-95">Un pre-aviso cuando el ruido o la luz se acercan a tu umbral, y un aviso claro si lo pasan y se sostiene. Te da minutos para actuar, no segundos.</p>
+          <p class="mt-3 max-w-xl text-lg opacity-95">Un pre-aviso cuando el ruido o la luz se acercan a tu umbral, y un aviso claro si lo pasan y se sostiene. Te da minutos para actuar antes de una crisis o un ataque de pánico, no segundos.</p>
         </article>
         <article class="rounded-3xl bg-sun p-8 text-on-sun">
           <h3 class="text-3xl font-bold">Sin sonidos</h3>
@@ -236,7 +240,11 @@
           <h3 class="text-2xl font-bold">Informe semanal en PDF</h3>
           <p class="mt-3 text-muted">Un resumen de la semana con los avisos y los lugares que más costaron, pensado para la familia, los acompañantes y el terapeuta.</p>
         </article>
-        <article class="rounded-3xl bg-orange p-8 text-navy md:col-span-3">
+        <article class="card p-8">
+          <h3 class="text-2xl font-bold">Rutinas paso a paso</h3>
+          <p class="mt-3 text-muted">La mañana de escuela, ir al súper o la hora de dormir, explicadas en el reloj con un pictograma por paso. Menos incertidumbre, más autonomía.</p>
+        </article>
+        <article class="rounded-3xl bg-orange p-8 text-navy md:col-span-2">
           <h3 class="text-3xl font-bold">Funciona con el reloj que ya tenés</h3>
           <p class="mt-3 max-w-3xl text-lg">Umbral aprovecha los sensores de los smartwatches más avanzados, como Samsung Galaxy Watch. Si todavía no tenés uno, lo podés comprar con Umbral y sumar meses de Plus gratis.</p>
         </article>
@@ -337,8 +345,8 @@
       <h2 id="quien-title" class="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Para chicos con autismo y quienes los acompañan</h2>
       <article class="mt-12 rounded-3xl bg-orange p-8 text-navy sm:p-12">
         <div class="grid gap-8 md:grid-cols-2">
-          <div><h3 class="text-2xl font-bold">Para la persona con autismo</h3><p class="mt-3 text-lg">Hipersensibilidad al ruido, a la luz o a los cambios. Umbral la ayuda a notar la subida antes de la sobrecarga y a tener a mano una acción concreta, por su cuenta.</p></div>
-          <div><h3 class="text-2xl font-bold">Para la familia y acompañantes</h3><p class="mt-3 text-lg">Menos tiempo pendientes, avisos cuando de verdad hacen falta e informes para anticipar. Más independencia para ustedes también.</p></div>
+          <div><h3 class="text-2xl font-bold">Para la persona con autismo</h3><p class="mt-3 text-lg">Hipersensibilidad al ruido, a la luz o a los cambios. Umbral la ayuda a notar la subida antes de la sobrecarga y a tener a mano una acción concreta, por su cuenta. Menos crisis y ataques de pánico.</p></div>
+          <div><h3 class="text-2xl font-bold">Para la familia y acompañantes</h3><p class="mt-3 text-lg">Menos tiempo pendientes, avisos cuando de verdad hacen falta e informes para anticipar. Un alivio para los padres y más independencia para ustedes también.</p></div>
         </div>
         <p class="mt-8 max-w-3xl text-lg font-bold">Y es versátil: sus avisos y su pantalla a medida también se adaptan a personas con otras discapacidades.</p>
       </article>
@@ -363,7 +371,7 @@
           <ul class="mt-8 space-y-4 text-lg">
             <li class="rounded-2xl bg-white/10 p-5">Avisos que la persona marca como útiles. <strong class="text-sun">Meta: 70% o más.</strong></li>
             <li class="rounded-2xl bg-white/10 p-5">Minutos de anticipación entre el pre-aviso y la sobrecarga que la persona informa.</li>
-            <li class="rounded-2xl bg-white/10 p-5">Sobrecargas por semana informadas por la persona, antes y después de 4 semanas de uso.</li>
+            <li class="rounded-2xl bg-white/10 p-5">Crisis y ataques de pánico por semana, informados por la familia, antes y después de 4 semanas de uso.</li>
           </ul>
         </div>
       </div>
@@ -382,7 +390,7 @@
         <article class="card flex flex-col">
           <h3 class="text-xl font-bold">Gratis</h3>
           <p class="mt-1 text-3xl font-bold text-primary">US$ 0</p>
-          <p class="mt-3 text-muted">Umbrales y avisos, pantalla a medida, momento de calma, pictogramas, historial de los últimos 7 días e informe semanal en PDF.</p>
+          <p class="mt-3 text-muted">Umbrales y avisos, pantalla a medida, momento de calma, pictogramas, rutinas, historial de los últimos 7 días e informe semanal en PDF.</p>
         </article>
         <article class="flex flex-col rounded-3xl bg-sun p-6 text-on-sun">
           <h3 class="text-xl font-bold">Plus</h3>
@@ -407,7 +415,7 @@
       <div class="mt-8 divide-y divide-line border-y border-line">
         <details class="group py-5"><summary class="cursor-pointer text-lg font-bold">¿Qué reloj necesito?</summary><p class="mt-3 text-muted">Un smartwatch con Wear OS, como Samsung Galaxy Watch, que ya trae todos los sensores que usa Umbral. Otros relojes con Wear OS, como Xiaomi Watch 2, funcionan según los sensores de cada modelo. Sin reloj, la app mide el ruido con el micrófono del teléfono.</p></details>
         <details class="group py-5"><summary class="cursor-pointer text-lg font-bold">¿Puedo comprar el reloj con Umbral?</summary><p class="mt-3 text-muted">Sí. Con el combo comprás un Galaxy Watch desde nuestro sitio y sumás <span data-model="comboFreeMonths">6</span> meses de Umbral Plus gratis. Después seguís con el plan que elijas o volvés al gratis.</p></details>
-        <details class="group py-5"><summary class="cursor-pointer text-lg font-bold">¿Qué incluye el plan gratis?</summary><p class="mt-3 text-muted">Umbrales, avisos, pantalla a medida, momento de calma, pictogramas, historial de los últimos 7 días e informe semanal en PDF. Umbral Plus suma el historial completo, informes para acompañantes y terapeutas, perfiles para toda la familia y avisos a la familia.</p></details>
+        <details class="group py-5"><summary class="cursor-pointer text-lg font-bold">¿Qué incluye el plan gratis?</summary><p class="mt-3 text-muted">Umbrales, avisos, pantalla a medida, momento de calma, pictogramas, rutinas, historial de los últimos 7 días e informe semanal en PDF. Umbral Plus suma el historial completo, informes para acompañantes y terapeutas, perfiles para toda la familia y avisos a la familia.</p></details>
         <details class="group py-5"><summary class="cursor-pointer text-lg font-bold">¿Sirve para chicos?</summary><p class="mt-3 text-muted">Sí. Está pensado para chicos y adolescentes con autismo. La familia configura todo desde su teléfono y el reloj muestra avisos simples, con colores y pictogramas.</p></details>
         <details class="group py-5"><summary class="cursor-pointer text-lg font-bold">¿Es un dispositivo médico?</summary><p class="mt-3 text-muted">No. Umbral es una herramienta de apoyo para la autorregulación. No diagnostica ni reemplaza la atención profesional.</p></details>
         <details class="group py-5"><summary class="cursor-pointer text-lg font-bold">¿Graba lo que digo?</summary><p class="mt-3 text-muted">No. El micrófono solo calcula el nivel de ruido en decibeles. El audio no se guarda ni se envía.</p></details>

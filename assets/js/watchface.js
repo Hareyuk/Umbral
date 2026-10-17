@@ -1,6 +1,7 @@
 // Pantalla del reloj Umbral como SVG (reloj cuadrado). Función pura: recibe datos y devuelve un string.
 import { METRICS, METRIC_IDS, ringFraction, formatValue } from './engine.js';
 import { PICTOS } from './pictos.js';
+import { ROUTINE_ICONS } from './routines.js';
 
 // Íconos de las medidas (trazo 24x24). Simples, un concepto por ícono.
 export const ICON_PATHS = {
@@ -11,7 +12,7 @@ export const ICON_PATHS = {
   breath: ['M3 8h10a3 3 0 1 0-3-3', 'M3 12h15a3 3 0 1 1-3 3', 'M3 16h7'],
 };
 
-const pathsOf = (name) => ICON_PATHS[name] ?? PICTOS[name]?.paths ?? [];
+const pathsOf = (name) => ICON_PATHS[name] ?? PICTOS[name]?.paths ?? ROUTINE_ICONS[name]?.paths ?? [];
 
 export function iconSVG(name, cls = 'size-6') {
   return `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${pathsOf(name).map((d) => `<path d="${d}"/>`).join('')}</svg>`;
@@ -91,8 +92,10 @@ export function strapTexture() {
   return `<g aria-hidden="true">${ridges.join('')}</g>`;
 }
 
-function describe({ readings, levels, face, thresholds, alert, pictos }) {
+function describe({ readings, levels, face, thresholds, alert, pictos, routine }) {
   if (alert) return `Reloj Umbral. Aviso: ${alert.title}.`;
+  if (routine?.done) return `Reloj Umbral. Rutina ${routine.name}: terminada.`;
+  if (routine) return `Reloj Umbral. Rutina ${routine.name}, paso ${routine.index + 1} de ${routine.total}: ${routine.text}.`;
   if (pictos?.show) return `Reloj Umbral. Pictograma: ${PICTOS[pictos.show]?.label ?? ''}.`;
   if (pictos?.items) return `Reloj Umbral. Mis pictogramas: ${pictos.items.map((id) => PICTOS[id]?.label).filter(Boolean).join(', ')}.`;
   const parts = [face.primary, ...face.complications].map((id) => {
@@ -200,13 +203,42 @@ function pictosScreen({ pictos, st, round }) {
   return body;
 }
 
-export function watchSVG({ readings = {}, levels = {}, face: rawFace, thresholds = {}, alert = null, pictos = null } = {}) {
+// Pantalla de rutina: un paso por vez, con pictograma grande y puntos de progreso.
+function routineScreen({ routine, st, round }) {
+  let body = text(CX, 52, 11, st.muted, routine.name.slice(0, round ? 20 : 26), 'font-weight="700"');
+  if (routine.done) {
+    body += glyph('si', CX, 104, 60, st.ok, 2.2);
+    body += text(CX, 162, 20, st.text, '¡Terminaste!', 'font-weight="700"');
+    return body;
+  }
+  body += text(CX, 70, 11, st.tick, `PASO ${routine.index + 1} DE ${routine.total}`, 'letter-spacing="1.2" font-weight="700"');
+  body += glyph(routine.icon, CX, 110, 52, st.text, 2);
+  wrap(routine.text, round ? 14 : 17).slice(0, 2).forEach((line, i) => {
+    body += text(CX, 160 + i * 19, 16, st.text, line, 'font-weight="700"');
+  });
+  const gap = Math.min(12, (round ? 88 : 140) / Math.max(1, routine.total - 1));
+  const x0 = CX - (gap * (routine.total - 1)) / 2;
+  for (let k = 0; k < routine.total; k++) {
+    const fill = k < routine.index ? st.ok : k === routine.index ? st.tick : st.track;
+    body += `<circle cx="${fx(x0 + k * gap)}" cy="203" r="${k === routine.index ? 4 : 3}" fill="${fill}"/>`;
+  }
+  return body;
+}
+
+export function watchSVG({ readings = {}, levels = {}, face: rawFace, thresholds = {}, alert = null, pictos = null, routine = null } = {}) {
   const face = normalizeFace(rawFace);
   const st = FACE_STYLES[face.style];
   const th = { ...Object.fromEntries(METRIC_IDS.map((id) => [id, METRICS[id].threshold])), ...thresholds };
-  const label = describe({ readings, levels, face, thresholds: th, alert, pictos });
+  const label = describe({ readings, levels, face, thresholds: th, alert, pictos, routine });
   const round = face.shape === 'redondo';
-  const body = alert ? alertScreen({ alert, readings, st, round }) : pictos ? pictosScreen({ pictos, st, round }) : metricsScreen({ readings, levels, face, th, st, round });
+  // Prioridad: aviso > pictograma > rutina > medidas.
+  const body = alert
+    ? alertScreen({ alert, readings, st, round })
+    : pictos
+      ? pictosScreen({ pictos, st, round })
+      : routine
+        ? routineScreen({ routine, st, round })
+        : metricsScreen({ readings, levels, face, th, st, round });
   const caseShape = round
     ? `<circle cx="${CX}" cy="${CX}" r="112" fill="#1E2426" stroke="#5A666B" stroke-width="3"/>\n<circle cx="${CX}" cy="${CX}" r="${ROUND.r}" fill="${st.face}"/>`
     : `<rect x="12" y="12" width="216" height="216" rx="44" fill="#1E2426" stroke="#5A666B" stroke-width="3"/>\n<rect x="${SCREEN.x}" y="${SCREEN.y}" width="${SCREEN.w}" height="${SCREEN.h}" rx="${SCREEN.r}" fill="${st.face}"/>\n<circle cx="120" cy="17" r="3" fill="#0F1415"/>`;

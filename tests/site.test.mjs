@@ -165,13 +165,13 @@ test('landing: le habla a la familia y promete independencia para todos', () => 
   const app = read('app/index.html');
   const visible = html.replace(/<svg[\s\S]*?<\/svg>/g, '');
   assert.match(html, /<p class="eyebrow">Nuevo · Para familias y acompañantes de chicos con autismo<\/p>/);
-  assert.match(html, /La persona gana independencia; la familia, tranquilidad\./);
+  assert.match(html, /Menos crisis y ataques de pánico, más independencia: un alivio para los chicos y para sus padres\./);
   assert.match(html, /Para la persona con autismo<\/h3>/);
   assert.match(html, /Para la familia y acompañantes<\/h3>/);
   assert.match(html, /Independencia compartida\./);
   assert.match(html, /informes para acompañantes y terapeutas/);
   assert.match(html, /¿Sirve para chicos\?/);
-  assert.ok(!/[Ee]scuela|licencias para grupos|centro terapéutico/.test(visible), 'solo planes individuales');
+  assert.ok(!/Escuelas<\/h3>|plan para escuelas|licencias para grupos|centro terapéutico/i.test(visible), 'solo planes individuales');
   assert.ok(!/persona de apoyo/i.test(visible + app), 'ahora es "familia o acompañante"');
   assert.match(app, /Avisar a la familia o acompañante/);
 });
@@ -183,6 +183,28 @@ test('logo: el wordmark de Umbral va en la barra de la landing y de la app', () 
     assert.ok(!/<svg class="size-7"/.test(header), `${page}: sin el logo viejo`);
   }
   assert.ok(read('sw.js').includes("'/assets/img/logo-umbral.webp'"), 'el logo funciona sin conexión');
+});
+
+// Octava ronda (16/10): hero en dos columnas con el logo, crisis y ataques de pánico, rutinas.
+test('landing: hero en una sola vista (textos a la izquierda, reloj a la derecha) con el logo', () => {
+  const html = read('index.html');
+  const hero = html.match(/<section[^>]*aria-labelledby="hero-title"[\s\S]*?<\/section>/)[0];
+  assert.match(hero, /lg:grid-cols-\[1\.15fr_1fr\]/, 'dos columnas en PC');
+  assert.match(hero, /lg:min-h-\[calc\(100svh-7\.5rem\)\]/, 'entra en la primera pantalla');
+  assert.match(hero, /class="text-center lg:text-left"/, 'textos a la izquierda en PC');
+  assert.match(hero, /<h1 id="hero-title"[^>]*>\s*<img src="\/assets\/img\/logo-umbral\.webp"[^>]*alt="Umbral"/, 'el logo es el título');
+  assert.ok(hero.indexOf('id="hero-title"') < hero.indexOf('id="hero-watch"'), 'el reloj va después de los textos (a la derecha / abajo en celular)');
+  assert.match(hero, /data-hero-scenario="recital"/);
+  assert.match(html, /ataques de pánico/);
+  assert.match(html, /Rutinas paso a paso<\/h3>/);
+});
+
+test('app: pestaña de rutinas con su panel y controles', () => {
+  const app = read('app/index.html');
+  assert.match(app, /id="tab-rutinas" data-tab="rutinas" aria-controls="panel-rutinas"/);
+  assert.match(app, /id="panel-rutinas" role="tabpanel"/);
+  assert.equal((app.match(/role="tab"/g) ?? []).length, 6);
+  for (const action of ['prev', 'next', 'stop']) assert.ok(app.includes(`data-run="${action}"`), action);
 });
 
 // Sexta ronda (16/10): sin descuento por CUD y con ejemplos de pantalla redonda.

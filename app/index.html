@@ -50,6 +50,14 @@
         </div>
         <button type="button" class="btn-sun mt-4 w-full" data-open-calm>Momento de calma</button>
         <button type="button" class="btn-ghost mt-3 w-full" id="shortcut-picto">Botón lateral: mostrar mi pictograma</button>
+        <div id="run-box" class="mt-4 rounded-3xl bg-surface p-5 text-center" hidden>
+          <p class="font-bold" id="run-title"></p>
+          <div class="mt-3 flex justify-center gap-2">
+            <button type="button" class="btn-ghost px-4 py-2" data-run="prev">Anterior</button>
+            <button type="button" class="btn-primary px-4 py-2" data-run="next">Siguiente</button>
+            <button type="button" class="btn-ghost px-4 py-2" data-run="stop">Terminar</button>
+          </div>
+        </div>
       </div>
       <div>
         <p class="rounded-2xl bg-surface p-4 text-sm text-muted">Demo sin reloj conectado: pulso, oxígeno y luz son simulados, como si vinieran de tu Galaxy Watch. El ruido puede medirse con el micrófono de tu teléfono.</p>
@@ -113,6 +121,25 @@
           <label class="flex items-center gap-3"><input type="checkbox" data-face="pictograms"> Pictogramas</label>
         </fieldset>
       </form>
+    </section>
+
+    <!-- Rutinas -->
+    <section id="panel-rutinas" role="tabpanel" aria-labelledby="tab-rutinas" class="grid gap-8 md:grid-cols-[minmax(0,20rem)_1fr]" hidden>
+      <div class="md:sticky md:top-20 md:self-start">
+        <h2 class="text-3xl font-bold">Rutinas</h2>
+        <p class="mt-2 text-muted">Pasos simples, uno por vez en el reloj, con un pictograma cada uno. Armalas en familia.</p>
+        <div id="routine-preview" class="watch mx-auto mt-4 w-56 sm:w-64"></div>
+        <div id="routine-controls" class="mt-4 flex justify-center gap-2" hidden>
+          <button type="button" class="btn-ghost px-4 py-2" data-run="prev">Anterior</button>
+          <button type="button" class="btn-primary px-4 py-2" data-run="next">Siguiente</button>
+          <button type="button" class="btn-ghost px-4 py-2" data-run="stop">Terminar</button>
+        </div>
+      </div>
+      <div>
+        <ul id="routine-list" class="space-y-4"></ul>
+        <button type="button" id="routine-new" class="btn-sun mt-6">Nueva rutina</button>
+        <p class="mt-3 text-sm text-muted">Versión de prueba: el diseño final de las rutinas puede cambiar.</p>
+      </div>
     </section>
 
     <!-- Pictogramas -->
@@ -210,12 +237,13 @@
   </main>
 
   <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md" aria-label="Secciones de la app">
-    <div class="mx-auto grid max-w-lg grid-cols-5" role="tablist" aria-label="Secciones">
-      <button type="button" role="tab" id="tab-inicio" data-tab="inicio" aria-controls="panel-inicio" aria-selected="true" class="py-3 text-sm font-bold aria-selected:text-primary">Inicio</button>
-      <button type="button" role="tab" id="tab-reloj" data-tab="reloj" aria-controls="panel-reloj" aria-selected="false" tabindex="-1" class="py-3 text-sm font-bold text-muted aria-selected:text-primary">Reloj</button>
-      <button type="button" role="tab" id="tab-pictos" data-tab="pictos" aria-controls="panel-pictos" aria-selected="false" tabindex="-1" class="py-3 text-sm font-bold text-muted aria-selected:text-primary">Pictos</button>
-      <button type="button" role="tab" id="tab-avisos" data-tab="avisos" aria-controls="panel-avisos" aria-selected="false" tabindex="-1" class="py-3 text-sm font-bold text-muted aria-selected:text-primary">Avisos</button>
-      <button type="button" role="tab" id="tab-historial" data-tab="historial" aria-controls="panel-historial" aria-selected="false" tabindex="-1" class="py-3 text-sm font-bold text-muted aria-selected:text-primary">Historial</button>
+    <div class="mx-auto grid max-w-2xl grid-cols-6" role="tablist" aria-label="Secciones">
+      <button type="button" role="tab" id="tab-inicio" data-tab="inicio" aria-controls="panel-inicio" aria-selected="true" class="py-3 text-xs font-bold sm:text-sm aria-selected:text-primary">Inicio</button>
+      <button type="button" role="tab" id="tab-reloj" data-tab="reloj" aria-controls="panel-reloj" aria-selected="false" tabindex="-1" class="py-3 text-xs font-bold sm:text-sm text-muted aria-selected:text-primary">Reloj</button>
+      <button type="button" role="tab" id="tab-rutinas" data-tab="rutinas" aria-controls="panel-rutinas" aria-selected="false" tabindex="-1" class="py-3 text-xs font-bold sm:text-sm text-muted aria-selected:text-primary">Rutinas</button>
+      <button type="button" role="tab" id="tab-pictos" data-tab="pictos" aria-controls="panel-pictos" aria-selected="false" tabindex="-1" class="py-3 text-xs font-bold sm:text-sm text-muted aria-selected:text-primary">Pictos</button>
+      <button type="button" role="tab" id="tab-avisos" data-tab="avisos" aria-controls="panel-avisos" aria-selected="false" tabindex="-1" class="py-3 text-xs font-bold sm:text-sm text-muted aria-selected:text-primary">Avisos</button>
+      <button type="button" role="tab" id="tab-historial" data-tab="historial" aria-controls="panel-historial" aria-selected="false" tabindex="-1" class="py-3 text-xs font-bold sm:text-sm text-muted aria-selected:text-primary">Historial</button>
     </div>
   </nav>
 
