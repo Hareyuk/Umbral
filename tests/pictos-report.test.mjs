@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { PICTOS, PICTO_IDS, MAX_WATCH_PICTOS, normalizePictos, defaultPictos } from '../assets/js/pictos.js';
-import { watchSVG, defaultFace, FACE_STYLES, pictoCells } from '../assets/js/watchface.js';
+import { watchSVG, defaultFace, normalizeFace, FACE_STYLES, pictoCells } from '../assets/js/watchface.js';
 import { buildWeeklyReportPDF, reportLines } from '../assets/js/report.js';
 
 test('pictogramas: cada uno tiene texto en primera persona, etiqueta corta y dibujo', () => {
@@ -52,6 +52,32 @@ test('reloj: grilla de 5 pictogramas (3 arriba, 2 abajo) sin salirse de la panta
       assert.ok(!overlap, `celdas ${i} y ${j} se pisan`);
     }
   }
+});
+
+test('reloj redondo: caja y pantalla circulares, contenido dentro del círculo', () => {
+  const svg = watchSVG({ readings: { noise: 60, heart: 80, light: 300, spo2: 98 }, face: { ...defaultFace(), shape: 'redondo' } });
+  assert.match(svg, /<circle cx="120" cy="120" r="112"/);
+  assert.match(svg, /<circle cx="120" cy="120" r="98" fill=/);
+  assert.ok(!svg.includes('width="216" height="216"'), 'sin caja cuadrada');
+  // Los valores de los datos chicos (y=204) tienen que entrar en el círculo de radio 98.
+  for (const m of svg.matchAll(/<text x="(\d+)" y="204"/g)) {
+    const halfWidth = Math.sqrt(98 ** 2 - (204 - 120) ** 2);
+    assert.ok(Math.abs(Number(m[1]) - 120) + 12 <= halfWidth, `dato chico en x=${m[1]} se sale del borde`);
+  }
+  assert.equal(normalizeFace({ shape: 'triangular' }).shape, 'cuadrado');
+});
+
+test('reloj redondo: pictogramas dentro del círculo (4 y 5)', () => {
+  for (const n of [4, 5]) {
+    for (const [x, y, w, h] of pictoCells(n, 'redondo')) {
+      for (const [px, py] of [[x, y], [x + w, y], [x, y + h], [x + w, y + h]]) {
+        const d = Math.hypot(px - 120, py - 120);
+        assert.ok(d <= 98, `${n} pictos: esquina (${px}, ${py}) a ${d.toFixed(1)} del centro`);
+      }
+    }
+  }
+  const svg = watchSVG({ face: { ...defaultFace(), shape: 'redondo' }, pictos: { items: ['pausa', 'ayuda', 'si', 'no', 'agua'], shortcut: 'si' } });
+  assert.equal((svg.match(/width="50" height="50"/g) ?? []).length, 5);
 });
 
 test('reloj: pictograma en grande para mostrar', () => {

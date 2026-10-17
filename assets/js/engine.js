@@ -204,7 +204,7 @@ const COPY = {
   },
   spo2: {
     pre: ['Mi oxígeno está bajando', 'Puedo sentarme y respirar con calma.'],
-    alert: ['Oxígeno bajo', 'Aviso a mi persona de apoyo.'],
+    alert: ['Oxígeno bajo', 'Aviso a mi familia.'],
   },
 };
 

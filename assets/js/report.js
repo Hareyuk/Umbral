@@ -53,7 +53,7 @@ export function reportLines(events, { now = Date.now(), name = '' } = {}) {
       lines.push([10, false, `${fmtDate(ev.at)} ${fmtTime(ev.at)}   ${ev.level === 'alert' ? 'Aviso' : 'Pre-aviso'}   ${m.label} ${formatValue(ev.metric, ev.value)} ${m.unit}   ${ev.place ?? ''}`]);
     }
   } else lines.push([11, false, 'Todavía no hay avisos registrados.']);
-  lines.push([11, false, ''], [9, false, 'Generado por Umbral. Es un registro de apoyo para compartir con tu terapeuta; no es un informe médico.']);
+  lines.push([11, false, ''], [9, false, 'Generado por Umbral. Es un registro de apoyo para la familia, acompañantes y terapeutas; no es un informe médico.']);
   return lines;
 }
 

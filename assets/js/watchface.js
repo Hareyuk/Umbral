@@ -27,8 +27,11 @@ export const FACE_STYLES = {
 export const LEVEL_WORD = { ok: 'Tranquilo', pre: 'Subiendo', alert: 'Mucho' };
 
 export function defaultFace() {
-  return { primary: 'noise', complications: ['heart', 'light', 'spo2'], style: 'vivo', pictograms: true, numbers: true };
+  return { primary: 'noise', complications: ['heart', 'light', 'spo2'], style: 'vivo', pictograms: true, numbers: true, shape: 'cuadrado' };
 }
+
+// Forma de la pantalla: cuadrada (como Xiaomi) o redonda (como Samsung Galaxy Watch).
+export const SHAPES = ['cuadrado', 'redondo'];
 
 export function normalizeFace(input) {
   const base = defaultFace();
@@ -42,6 +45,7 @@ export function normalizeFace(input) {
     style: FACE_STYLES[f.style] ? f.style : base.style,
     pictograms: typeof f.pictograms === 'boolean' ? f.pictograms : base.pictograms,
     numbers: typeof f.numbers === 'boolean' ? f.numbers : base.numbers,
+    shape: SHAPES.includes(f.shape) ? f.shape : base.shape,
   };
 }
 
@@ -56,8 +60,9 @@ export function wrap(text, max) {
   return lines;
 }
 
-// Geometría del reloj cuadrado: caja 216x216 y pantalla de 192x192.
+// Geometría: caja de 216 y pantalla de 192 (cuadrada) o caja de radio 112 y pantalla de radio 98 (redonda).
 const SCREEN = { x: 24, y: 24, w: 192, h: 192, r: 30 };
+const ROUND = { r: 98 };
 const CX = 120;
 const BAR = { x: 44, y: 150, w: 152, h: 10 };
 const FONT = 'Atkinson Hyperlegible, system-ui, sans-serif';
@@ -98,7 +103,7 @@ function describe({ readings, levels, face, thresholds, alert, pictos }) {
   return `Reloj Umbral. ${parts.join('. ')}. Tu umbral de ${p.label.toLowerCase()}: ${formatValue(face.primary, thresholds[face.primary])} ${p.unit}.`;
 }
 
-function metricsScreen({ readings, levels, face, th, st }) {
+function metricsScreen({ readings, levels, face, th, st, round }) {
   const id = face.primary;
   const m = METRICS[id];
   const lvl = levels[id] ?? 'ok';
@@ -119,7 +124,9 @@ function metricsScreen({ readings, levels, face, th, st }) {
   body += `<rect x="${BAR.x}" y="${BAR.y}" width="${fx(Math.max(BAR.h, BAR.w * f))}" height="${BAR.h}" rx="${BAR.h / 2}" fill="${col}"/>`;
   const tx = fx(BAR.x + BAR.w * ft);
   body += `<line x1="${tx}" y1="${BAR.y - 5}" x2="${tx}" y2="${BAR.y + BAR.h + 5}" stroke="${st.tick}" stroke-width="3" stroke-linecap="round"/>`;
-  const xs = { 1: [120], 2: [96, 144], 3: [76, 120, 164] }[face.complications.length] ?? [];
+  // En la redonda los datos chicos van más juntos para no salirse del borde.
+  const layout = round ? { 1: [120], 2: [104, 136], 3: [88, 120, 152] } : { 1: [120], 2: [96, 144], 3: [76, 120, 164] };
+  const xs = layout[face.complications.length] ?? [];
   face.complications.forEach((cid, i) => {
     const c = st[levels[cid] ?? 'ok'];
     body += glyph(cid, xs[i], 180, 14, c);
@@ -130,11 +137,16 @@ function metricsScreen({ readings, levels, face, th, st }) {
   return body;
 }
 
-function alertScreen({ alert, readings, st }) {
+function alertScreen({ alert, readings, st, round }) {
   const col = st[alert.level] ?? st.alert;
   let body = '';
-  if (alert.tint !== false) body += `<rect x="${SCREEN.x}" y="${SCREEN.y}" width="${SCREEN.w}" height="${SCREEN.h}" rx="${SCREEN.r}" fill="${col}" opacity="0.18"/>`;
-  body += `<rect x="${SCREEN.x + 4}" y="${SCREEN.y + 4}" width="${SCREEN.w - 8}" height="${SCREEN.h - 8}" rx="${SCREEN.r - 4}" fill="none" stroke="${col}" stroke-width="6"/>`;
+  if (round) {
+    if (alert.tint !== false) body += `<circle cx="${CX}" cy="${CX}" r="${ROUND.r}" fill="${col}" opacity="0.18"/>`;
+    body += `<circle cx="${CX}" cy="${CX}" r="${ROUND.r - 4}" fill="none" stroke="${col}" stroke-width="6"/>`;
+  } else {
+    if (alert.tint !== false) body += `<rect x="${SCREEN.x}" y="${SCREEN.y}" width="${SCREEN.w}" height="${SCREEN.h}" rx="${SCREEN.r}" fill="${col}" opacity="0.18"/>`;
+    body += `<rect x="${SCREEN.x + 4}" y="${SCREEN.y + 4}" width="${SCREEN.w - 8}" height="${SCREEN.h - 8}" rx="${SCREEN.r - 4}" fill="none" stroke="${col}" stroke-width="6"/>`;
+  }
   const showIcon = alert.pictogram !== false;
   if (showIcon) body += glyph(alert.metric, CX, 76, 50, col, 2.2);
   wrap(alert.title, 14).slice(0, 3).forEach((line, i) => {
@@ -145,32 +157,44 @@ function alertScreen({ alert, readings, st }) {
   return body;
 }
 
-// Celdas de la grilla según cuántos pictogramas hay: [x, y, ancho] (alto fijo de 84).
-// Hasta 4 van en 2x2; con 5, tres angostas arriba y dos anchas abajo.
-export function pictoCells(n) {
-  if (n <= 4) return [[32, 32, 84], [124, 32, 84], [32, 124, 84], [124, 124, 84]].slice(0, n);
-  return [[30, 32, 56], [92, 32, 56], [154, 32, 56], [30, 124, 87], [123, 124, 87]];
+// Celdas de la grilla según cuántos pictogramas hay: [x, y, ancho, alto].
+// Cuadrada: hasta 4 en 2x2; con 5, tres angostas arriba y dos anchas abajo.
+// Redonda: hasta 4 en 2x2 más chico; con 5, en círculo (solo ícono, sin etiqueta).
+export function pictoCells(n, shape = 'cuadrado') {
+  if (shape === 'redondo') {
+    if (n <= 4) return [[53, 53, 64, 64], [123, 53, 64, 64], [53, 123, 64, 64], [123, 123, 64, 64]].slice(0, n);
+    return [0, 1, 2, 3, 4].map((k) => {
+      const a = ((-90 + 72 * k) * Math.PI) / 180;
+      return [fx(CX + 58 * Math.cos(a) - 25), fx(CX + 58 * Math.sin(a) - 25), 50, 50];
+    });
+  }
+  if (n <= 4) return [[32, 32, 84, 84], [124, 32, 84, 84], [32, 124, 84, 84], [124, 124, 84, 84]].slice(0, n);
+  return [[30, 32, 56, 84], [92, 32, 56, 84], [154, 32, 56, 84], [30, 124, 87, 84], [123, 124, 87, 84]];
 }
 
 // Pantalla de pictogramas: grilla de hasta 5, o uno solo en grande para mostrarlo a otra persona.
-function pictosScreen({ pictos, st }) {
+function pictosScreen({ pictos, st, round }) {
   let body = '';
   if (pictos.show && PICTOS[pictos.show]) {
     body += glyph(pictos.show, CX, 96, 86, st.tick, 1.8);
-    wrap(PICTOS[pictos.show].label, 16).slice(0, 2).forEach((line, i) => {
+    wrap(PICTOS[pictos.show].label, round ? 12 : 16).slice(0, 2).forEach((line, i) => {
       body += text(CX, 172 + i * 22, 19, st.text, line, 'font-weight="700"');
     });
     return body;
   }
   const items = (pictos.items ?? []).filter((id) => PICTOS[id]).slice(0, 5);
-  const cells = pictoCells(items.length);
+  const cells = pictoCells(items.length, round ? 'redondo' : 'cuadrado');
   items.forEach((id, i) => {
-    const [x, y, w] = cells[i];
+    const [x, y, w, h] = cells[i];
     const narrow = w < 84;
     const star = pictos.shortcut === id;
-    body += `<rect x="${x}" y="${y}" width="${w}" height="84" rx="${narrow ? 14 : 18}" fill="${st.tile}" stroke="${star ? st.tick : 'none'}" stroke-width="3"/>`;
-    body += glyph(id, x + w / 2, y + 34, narrow ? 30 : 36, st.text, 2);
-    body += text(x + w / 2, y + 72, narrow ? 9 : 10, st.muted, PICTOS[id].short, 'font-weight="700"');
+    body += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${narrow ? 14 : 18}" fill="${st.tile}" stroke="${star ? st.tick : 'none'}" stroke-width="3"/>`;
+    if (h < 60) {
+      body += glyph(id, x + w / 2, y + h / 2, 26, st.text, 2);
+    } else {
+      body += glyph(id, x + w / 2, y + h * 0.4, h < 84 ? 28 : narrow ? 30 : 36, st.text, 2);
+      body += text(x + w / 2, y + h - 12, narrow ? 9 : 10, st.muted, PICTOS[id].short, 'font-weight="700"');
+    }
   });
   if (!items.length) body += text(CX, 124, 14, st.muted, 'Elegí pictogramas');
   return body;
@@ -181,16 +205,18 @@ export function watchSVG({ readings = {}, levels = {}, face: rawFace, thresholds
   const st = FACE_STYLES[face.style];
   const th = { ...Object.fromEntries(METRIC_IDS.map((id) => [id, METRICS[id].threshold])), ...thresholds };
   const label = describe({ readings, levels, face, thresholds: th, alert, pictos });
-  const body = alert ? alertScreen({ alert, readings, st }) : pictos ? pictosScreen({ pictos, st }) : metricsScreen({ readings, levels, face, th, st });
+  const round = face.shape === 'redondo';
+  const body = alert ? alertScreen({ alert, readings, st, round }) : pictos ? pictosScreen({ pictos, st, round }) : metricsScreen({ readings, levels, face, th, st, round });
+  const caseShape = round
+    ? `<circle cx="${CX}" cy="${CX}" r="112" fill="#1E2426" stroke="#5A666B" stroke-width="3"/>\n<circle cx="${CX}" cy="${CX}" r="${ROUND.r}" fill="${st.face}"/>`
+    : `<rect x="12" y="12" width="216" height="216" rx="44" fill="#1E2426" stroke="#5A666B" stroke-width="3"/>\n<rect x="${SCREEN.x}" y="${SCREEN.y}" width="${SCREEN.w}" height="${SCREEN.h}" rx="${SCREEN.r}" fill="${st.face}"/>\n<circle cx="120" cy="17" r="3" fill="#0F1415"/>`;
 
   return `<svg viewBox="0 -64 240 368" role="img" aria-label="${label}" xmlns="http://www.w3.org/2000/svg">
 <rect x="50" y="-64" width="140" height="120" rx="22" fill="#2C3537"/>
 <rect x="50" y="184" width="140" height="120" rx="22" fill="#2C3537"/>
 ${strapTexture()}
 <rect x="228" y="84" width="7" height="24" rx="3" fill="#5A666B"/>
-<rect x="12" y="12" width="216" height="216" rx="44" fill="#1E2426" stroke="#5A666B" stroke-width="3"/>
-<rect x="${SCREEN.x}" y="${SCREEN.y}" width="${SCREEN.w}" height="${SCREEN.h}" rx="${SCREEN.r}" fill="${st.face}"/>
-<circle cx="120" cy="17" r="3" fill="#0F1415"/>
+${caseShape}
 ${body}
 </svg>`;
 }

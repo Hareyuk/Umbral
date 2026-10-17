@@ -29,6 +29,17 @@ export const FACES = {
     face: { primary: 'noise', style: 'oscuro' },
     alert: { metric: 'noise', level: 'alert', title: 'Hay mucho ruido' },
   },
+  // Pantallas redondas, como las de Samsung Galaxy Watch.
+  g5: {
+    readings: { noise: 61, light: 520, heart: 92, spo2: 98 },
+    levels: { heart: 'ok' },
+    face: { primary: 'heart', complications: ['noise', 'light', 'spo2'], style: 'vivo', shape: 'redondo' },
+  },
+  g6: {
+    readings: { noise: 71, light: 300, heart: 88, spo2: 97 },
+    levels: { noise: 'pre' },
+    face: { primary: 'noise', complications: ['heart', 'spo2'], style: 'contraste', shape: 'redondo' },
+  },
 };
 
 export function renderInto(html) {

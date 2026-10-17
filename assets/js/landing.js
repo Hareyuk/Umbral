@@ -6,6 +6,15 @@ import { initUI } from './ui.js';
 
 initUI();
 
+// Precios de Plus: mensual o anual. Sin JS se ve el mensual.
+const billingButtons = document.querySelectorAll('[data-billing]');
+billingButtons.forEach((btn) =>
+  btn.addEventListener('click', () => {
+    billingButtons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+    document.querySelectorAll('[data-billing-show]').forEach((el) => (el.hidden = el.dataset.billingShow !== btn.dataset.billing));
+  }),
+);
+
 const host = document.getElementById('hero-watch');
 const status = document.getElementById('hero-status');
 const chips = document.querySelectorAll('[data-hero-scenario]');

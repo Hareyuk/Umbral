@@ -4,3 +4,6 @@ node_modules/
 .env.*
 .DS_Store
 Thumbs.db
+
+# Documentos de trabajo del equipo (pitch, chat, marco legal, README): quedan solo en las compus del equipo.
+*.md

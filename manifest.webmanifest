@@ -1,7 +1,7 @@
 {
   "name": "Umbral: tu reloj sensorial",
   "short_name": "Umbral",
-  "description": "Avisos sensoriales en tu muñeca para personas con autismo.",
+  "description": "Avisos sensoriales en el reloj para chicos con autismo y sus familias.",
   "lang": "es-AR",
   "start_url": "/app/",
   "scope": "/",

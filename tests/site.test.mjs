@@ -53,7 +53,8 @@ for (const page of PAGES) {
   test(`${page}: botones y enlaces con nombre accesible`, () => {
     for (const m of html.matchAll(/<(button|a)\b([^>]*)>([\s\S]*?)<\/\1>/g)) {
       const text = m[3].replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, '').trim();
-      assert.ok(text || /aria-label="[^"]+"/.test(m[2]), `sin nombre: <${m[1]}${m[2]}>`);
+      const imgAlt = /<img\b[^>]*\salt="[^"]+"/.test(m[3]); // una imagen con alt también le da nombre
+      assert.ok(text || imgAlt || /aria-label="[^"]+"/.test(m[2]), `sin nombre: <${m[1]}${m[2]}>`);
     }
   });
 
@@ -86,7 +87,6 @@ test('landing: refleja el feedback del equipo', () => {
   for (const page of [text(html), text(app)]) {
     assert.ok(!/autista/i.test(page), 'usar "personas con autismo"');
     assert.ok(!/Modo calma|data-pref="(calm|theme)"/.test(page), 'sin modo calma ni selector de tema');
-    assert.ok(!/Galaxy|Wear OS|relojes que ya/.test(page), 'el reloj es propio');
     assert.match(page, /data-theme="dark"/);
   }
   assert.match(html, /<a class="hover:text-ink" href="#problema">Por qué<\/a>/, '"Por qué" queda en la barra');
@@ -97,7 +97,6 @@ test('landing: refleja el feedback del equipo', () => {
   assert.ok(!/<table/.test(html), 'la tabla de ingresos queda para el pitch');
   assert.ok(!/TDAH|hipoacúsicas|Discapacidad intelectual/.test(html), 'solo la tarjeta de autismo');
   assert.match(html, /7 días/);
-  assert.match(html, /obra social/);
 });
 
 // Segunda ronda de feedback del equipo (16/10/2026).
@@ -117,18 +116,16 @@ test('landing: refleja la segunda ronda de feedback', () => {
   assert.match(html, /href="#pantallas">Pantallas</);
   assert.ok(!/instalar-title|Llevá Umbral en tu teléfono/.test(html), 'sin la sección de instalar repetida');
   assert.ok(!/sin costo a través|se obtiene gratis/i.test(html), 'el reloj se gestiona con la obra social, no es gratis');
-  assert.match(html, /cobertura total o descuento|total o parcialmente/);
   assert.match(html, /estudio_discapacidad_12_18\.pdf">INDEC, 2018</);
   assert.match(html, /La decisión es siempre del usuario\./);
   // Tercera ronda (16/10): títulos claros, sin promesas que generen dudas.
   assert.ok(!/Nada sobre nosotros|Co-diseño|historias sociales/.test(visible(html)));
   assert.match(html, /Cómo pensamos Umbral/);
-  assert.match(html, /El dispositivo está diseñado con/);
   assert.ok(!/>Personas con autismo<\/h3>/.test(html), 'la tarjeta naranja no repite el título');
   assert.match(html, /hasta 5 pictogramas/);
   assert.match(app, /Elegí hasta 5/);
   assert.match(html, /reloj-umbral-sensores\.webp/);
-  for (const sensor of ['Micrófono digital', 'Sensor de luz ambiental', 'Sensor óptico de pulso y oxígeno', 'Sensor de estrés', 'Acelerómetro y giroscopio', 'Parlante']) {
+  for (const sensor of ['Micrófono digital', 'Sensor de luz ambiental', 'Sensor óptico de pulso y oxígeno', 'Nivel de estrés', 'Acelerómetro y giroscopio', 'Vibración']) {
     assert.ok(html.includes(sensor), sensor);
   }
   for (const nombre of ['Franco Nahuel Preiss', 'María Luz Sueldo', 'Brisa Aimee Rodriguez', 'Federico Julián Pérez Trench', 'Axel Julián Dumas Cutuli']) {
@@ -139,6 +136,62 @@ test('landing: refleja la segunda ronda de feedback', () => {
   assert.match(app, /data-tab="pictos"/);
   // Las descripciones de los datos empiezan con mayúscula.
   for (const m of html.matchAll(/<p class="text-5xl[^>]*>[^<]+<\/p>\s*<p class="mt-3">(.)/g)) assert.match(m[1], /[A-ZÁÉÍÓÚÑ]/);
+});
+
+// Cuarta ronda (16/10): Umbral es una app para smartwatches existentes, con nuevo modelo de negocio.
+test('landing: app para smartwatches existentes y planes nuevos', () => {
+  const html = read('index.html');
+  const visible = html.replace(/<svg[\s\S]*?<\/svg>/g, '');
+  assert.ok(!/reloj Umbral|reloj propio|correa sensorial|Una correa que se puede tocar|obra social, que puede cubrirlo/i.test(visible), 'ya no hay reloj propio');
+  assert.match(html, /Samsung Galaxy Watch/);
+  assert.match(html, /Wear OS/);
+  assert.match(html, /Conectá el smartwatch/);
+  assert.match(html, /Usa los sensores que los smartwatches ya tienen/);
+  // Planes: gratis, Plus mensual o anual, combo con reloj.
+  assert.match(html, /data-billing="mensual" aria-pressed="true"/);
+  assert.match(html, /data-billing="anual" aria-pressed="false"/);
+  assert.match(html, /data-billing-show="anual" hidden/, 'sin JS se ve el precio mensual');
+  assert.match(html, /Combo con reloj/);
+  assert.ok(!/Escuelas<\/h3>|Gobierno de la Ciudad/.test(html), 'sin el plan de escuelas con el Gobierno');
+  // El combo es un escenario: el sitio no puede afirmar un acuerdo con Samsung que no existe.
+  assert.ok(!/partner oficial|socio oficial|alianza oficial|en alianza con Samsung/i.test(visible));
+  assert.match(html, /Umbral no tiene hoy un acuerdo comercial con Samsung/);
+  assert.ok(!/mailto:/.test(html), 'sin contactos inventados');
+});
+
+// Quinta ronda (16/10): el cliente es la familia o el acompañante; el usuario, la persona con autismo.
+test('landing: le habla a la familia y promete independencia para todos', () => {
+  const html = read('index.html');
+  const app = read('app/index.html');
+  const visible = html.replace(/<svg[\s\S]*?<\/svg>/g, '');
+  assert.match(html, /<p class="eyebrow">Nuevo · Para familias y acompañantes de chicos con autismo<\/p>/);
+  assert.match(html, /La persona gana independencia; la familia, tranquilidad\./);
+  assert.match(html, /Para la persona con autismo<\/h3>/);
+  assert.match(html, /Para la familia y acompañantes<\/h3>/);
+  assert.match(html, /Independencia compartida\./);
+  assert.match(html, /informes para acompañantes y terapeutas/);
+  assert.match(html, /¿Sirve para chicos\?/);
+  assert.ok(!/[Ee]scuela|licencias para grupos|centro terapéutico/.test(visible), 'solo planes individuales');
+  assert.ok(!/persona de apoyo/i.test(visible + app), 'ahora es "familia o acompañante"');
+  assert.match(app, /Avisar a la familia o acompañante/);
+});
+
+test('logo: el wordmark de Umbral va en la barra de la landing y de la app', () => {
+  for (const page of PAGES) {
+    const header = read(page).match(/<header[\s\S]*?<\/header>/)[0];
+    assert.match(header, /<a href="\/"[^>]*>\s*<img src="\/assets\/img\/logo-umbral\.webp" width="2000" height="456" alt="Umbral[^"]*"/, page);
+    assert.ok(!/<svg class="size-7"/.test(header), `${page}: sin el logo viejo`);
+  }
+  assert.ok(read('sw.js').includes("'/assets/img/logo-umbral.webp'"), 'el logo funciona sin conexión');
+});
+
+// Sexta ronda (16/10): sin descuento por CUD y con ejemplos de pantalla redonda.
+test('landing: sin descuento por CUD y con pantallas redondas de ejemplo', () => {
+  const html = read('index.html');
+  assert.ok(!/CUD/.test(html.replace(/<svg[\s\S]*?<\/svg>/g, '')), 'el descuento depende de cada familia y obra social');
+  const gallery = html.match(/<section id="pantallas"[\s\S]*?<\/section>/)[0];
+  assert.equal((gallery.match(/<!-- face:g\d -->/g) ?? []).length, 6);
+  assert.equal((gallery.match(/<circle cx="120" cy="120" r="112"/g) ?? []).length, 2, 'dos pantallas redondas');
 });
 
 test('landing: las esferas pre-renderizadas están al día (npm run build:faces)', () => {
